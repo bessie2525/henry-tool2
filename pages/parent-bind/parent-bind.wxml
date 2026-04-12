@@ -1,0 +1,34 @@
+<view class="container">
+  <view class="header">
+    <text class="emoji">🔗</text>
+    <text class="title">绑定孩子账号</text>
+    <text class="subtitle">请输入孩子的6位邀请码</text>
+  </view>
+  
+  <view class="form">
+    <view class="input-group">
+      <text class="label">邀请码</text>
+      <input 
+        class="input invite-input" 
+        placeholder="请输入6位邀请码" 
+        value="{{inviteCode}}"
+        bindinput="onInviteCodeInput"
+        maxlength="6"
+        uppercase
+      />
+    </view>
+    
+    <button class="submit-btn" bindtap="onBind" loading="{{loading}}">
+      绑定
+    </button>
+    
+    <button class="skip-btn" bindtap="onSkip">
+      稍后绑定
+    </button>
+  </view>
+  
+  <view class="tips">
+    <text class="tips-title">💡 小提示</text>
+    <text class="tips-text">邀请码可以在学生端「我的」页面找到</text>
+  </view>
+</view>

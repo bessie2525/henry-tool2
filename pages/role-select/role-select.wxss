@@ -1,0 +1,45 @@
+.container {
+  min-height: 100vh;
+  padding: 60rpx 40rpx;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 80rpx;
+  color: #333;
+}
+
+.role-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+}
+
+.role-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 60rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.role-emoji {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+
+.role-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.role-desc {
+  font-size: 26rpx;
+  color: #999;
+}

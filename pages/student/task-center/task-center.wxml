@@ -1,0 +1,32 @@
+<view class="container">
+  <view class="progress-card">
+    <text class="progress-title">今日任务进度</text>
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{(completedCount/totalCount)*100}}%"></view>
+    </view>
+    <text class="progress-text">{{completedCount}}/{{totalCount}} 已完成</text>
+    <view wx:if="{{completedCount === totalCount}}" class="bonus-hint">
+      <text>🎉 全部完成！额外获得10金币</text>
+    </view>
+  </view>
+
+  <view class="task-list">
+    <view 
+      wx:for="{{tasks}}" 
+      wx:key="id"
+      class="task-card {{item.status}}"
+      bindtap="onTaskTap"
+      data-task="{{item}}"
+    >
+      <text class="task-icon">{{item.icon}}</text>
+      <view class="task-info">
+        <text class="task-name">{{item.name}}</text>
+        <text class="task-status">{{item.status === 'approved' ? '已完成' : item.status === 'submitted' ? '待审核' : '未完成'}}</text>
+      </view>
+      <view class="task-reward">
+        <text class="reward-icon">🪙</text>
+        <text class="reward-num">+{{item.reward}}</text>
+      </view>
+    </view>
+  </view>
+</view>

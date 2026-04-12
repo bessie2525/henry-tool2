@@ -1,0 +1,21 @@
+<view class="container">
+  <view class="child-list">
+    <view 
+      wx:for="{{children}}" 
+      wx:key="id"
+      class="child-card"
+    >
+      <view class="child-info">
+        <text class="child-emoji">🧒</text>
+        <view class="child-detail">
+          <text class="child-name">{{item.name}}</text>
+          <text class="child-code">邀请码：{{item.inviteCode}}</text>
+        </view>
+      </view>
+      <view class="child-actions">
+        <button class="action-btn copy" bindtap="onCopyCode" data-code="{{item.inviteCode}}">复制</button>
+        <button class="action-btn unbind" bindtap="onUnbind" data-child="{{item}}">解绑</button>
+      </view>
+    </view>
+  </view>
+</view>

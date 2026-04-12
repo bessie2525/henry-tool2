@@ -1,0 +1,4 @@
+<view class="coin-display {{animating ? 'animating' : ''}}">
+  <text class="coin-icon">🪙</text>
+  <text class="coin-amount">{{displayAmount}}</text>
+</view>

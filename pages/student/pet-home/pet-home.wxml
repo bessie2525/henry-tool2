@@ -1,0 +1,64 @@
+<view class="container" wx:if="{{!loading}}">
+  <view wx:if="{{!hasPet}}" class="no-pet">
+    <text class="emoji">🐱</text>
+    <text class="text">还没有宠物，快去创建吧！</text>
+    <button class="btn" bindtap="goCreate">创建宠物</button>
+  </view>
+
+  <view wx:else class="pet-home">
+    <view class="header">
+      <view class="coin-balance">
+        <text class="coin-emoji">🪙</text>
+        <text class="coin-num">{{pet ? pet.coinBalance : 0}}</text>
+      </view>
+      <view class="pet-level">
+        <text class="level-text">Lv.{{pet ? pet.level : 1}}</text>
+      </view>
+    </view>
+
+    <view class="pet-scene">
+      <view class="pet-display {{petState}}">
+        <text class="pet-emoji" style="color: {{pet ? pet.color : '#FFA500'}}">
+          {{pet && pet.species === 'cat' ? '🐱' : pet.species === 'dog' ? '🐶' : '🐉'}}
+        </text>
+        <text class="pet-name">{{pet ? pet.name : ''}}</text>
+      </view>
+    </view>
+
+    <view class="status-bar">
+      <view class="status-item">
+        <text class="status-label">🍖 饱食度</text>
+        <view class="progress-bar">
+          <view class="progress-fill hunger" style="width: {{pet ? Math.min(100, pet.currentHunger) : 80}}%"></view>
+        </view>
+        <text class="status-value">{{pet ? Math.round(pet.currentHunger) : 80}}%</text>
+      </view>
+      <view class="status-item">
+        <text class="status-label">💧 口渴度</text>
+        <view class="progress-bar">
+          <view class="progress-fill thirst" style="width: {{pet ? Math.min(100, pet.currentThirst) : 80}}%"></view>
+        </view>
+        <text class="status-value">{{pet ? Math.round(pet.currentThirst) : 80}}%</text>
+      </view>
+      <view class="status-item">
+        <text class="status-label">😊 心情值</text>
+        <view class="progress-bar">
+          <view class="progress-fill mood" style="width: {{pet ? Math.min(100, pet.currentMood) : 80}}%"></view>
+        </view>
+        <text class="status-value">{{pet ? Math.round(pet.currentMood) : 80}}%</text>
+      </view>
+    </view>
+
+    <view class="action-bar">
+      <button class="action-btn" bindtap="onFeed">🍖 喂食</button>
+      <button class="action-btn" bindtap="onWater">💧 喂水 ({{freeWaterCount}})</button>
+      <button class="action-btn" bindtap="onTouch">✋ 抚摸 ({{touchCount}})</button>
+      <button class="action-btn" bindtap="onChat">💬 聊天</button>
+      <button class="action-btn" bindtap="onDressUp">👔 换装</button>
+    </view>
+  </view>
+</view>
+
+<view class="loading" wx:else>
+  <text class="loading-text">加载中...</text>
+</view>

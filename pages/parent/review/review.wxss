@@ -1,0 +1,89 @@
+.container {
+  min-height: 100vh;
+  background: #F5F7FA;
+}
+
+.filter-bar {
+  background: #fff;
+  padding: 20rpx 30rpx;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.filter-group {
+  display: flex;
+  gap: 40rpx;
+}
+
+.filter-item {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.review-list {
+  padding: 30rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.review-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.type-icon {
+  font-size: 32rpx;
+  margin-right: 12rpx;
+}
+
+.card-title {
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.card-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.card-content {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+  line-height: 1.6;
+}
+
+.card-status {
+  display: inline-block;
+  font-size: 24rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 12rpx;
+}
+
+.card-status.pending {
+  background: #FFF9E6;
+  color: #F5A623;
+}
+
+.card-status.approved {
+  background: #E8FDF5;
+  color: #50E3C2;
+}
+
+.card-status.rejected {
+  background: #FFF0F0;
+  color: #FF6B6B;
+}

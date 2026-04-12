@@ -1,0 +1,133 @@
+.container {
+  min-height: 100vh;
+  background: #F5F7FA;
+}
+
+.category-bar {
+  white-space: nowrap;
+  padding: 20rpx 30rpx;
+  background: #fff;
+}
+
+.category-item {
+  display: inline-block;
+  padding: 12rpx 28rpx;
+  margin-right: 16rpx;
+  background: #F5F7FA;
+  border-radius: 30rpx;
+  font-size: 26rpx;
+  color: #666;
+}
+
+.category-item.active {
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+  color: #fff;
+}
+
+.achievement-list {
+  padding: 30rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.achievement-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 30rpx;
+  display: flex;
+  align-items: center;
+  opacity: 0.5;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.achievement-card.unlocked {
+  opacity: 1;
+}
+
+.achievement-icon {
+  width: 100rpx;
+  height: 100rpx;
+  background: #F5F7FA;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+}
+
+.achievement-card.unlocked .achievement-icon {
+  background: linear-gradient(135deg, #FFD700 0%, #F5A623 100%);
+}
+
+.icon-emoji {
+  font-size: 50rpx;
+}
+
+.achievement-info {
+  flex: 1;
+}
+
+.achievement-name {
+  display: block;
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.achievement-desc {
+  display: block;
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+}
+
+.achievement-progress {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.achievement-progress .progress-bar {
+  flex: 1;
+  max-width: 200rpx;
+  height: 12rpx;
+  background: #F0F0F0;
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.achievement-progress .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #50E3C2 0%, #4A90E2 100%);
+  border-radius: 6rpx;
+}
+
+.achievement-progress .progress-text {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.achievement-reward {
+  min-width: 100rpx;
+  text-align: center;
+}
+
+.claim-btn {
+  background: linear-gradient(135deg, #50E3C2 0%, #4A90E2 100%);
+  color: #fff;
+  padding: 10rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+}
+
+.claimed-text {
+  font-size: 24rpx;
+  color: #50E3C2;
+}
+
+.reward-text {
+  font-size: 24rpx;
+  color: #999;
+}

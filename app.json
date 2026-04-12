@@ -1,0 +1,61 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/role-select/role-select",
+    "pages/student-register/student-register",
+    "pages/parent-register/parent-register",
+    "pages/parent-bind/parent-bind",
+    "pages/pet-create/pet-create",
+    "pages/student/pet-home/pet-home",
+    "pages/student/task-center/task-center",
+    "pages/student/task-chinese/task-chinese",
+    "pages/student/task-english-learn/task-english-learn",
+    "pages/student/task-daily/task-daily",
+    "pages/student/shop/shop",
+    "pages/student/chat/chat",
+    "pages/student/dress-up/dress-up",
+    "pages/student/achievement/achievement",
+    "pages/student/profile/profile",
+    "pages/parent/dashboard/dashboard",
+    "pages/parent/task-manage/task-manage",
+    "pages/parent/task-manage-chinese/task-manage-chinese",
+    "pages/parent/review/review",
+    "pages/parent/review-detail/review-detail",
+    "pages/parent/report/report",
+    "pages/parent/child-manage/child-manage",
+    "pages/parent/settings/settings"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#4A90E2",
+    "navigationBarTitleText": "学伴精灵",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F5F7FA"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#4A90E2",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/student/pet-home/pet-home",
+        "text": "主页"
+      },
+      {
+        "pagePath": "pages/student/task-center/task-center",
+        "text": "任务"
+      },
+      {
+        "pagePath": "pages/student/shop/shop",
+        "text": "商店"
+      },
+      {
+        "pagePath": "pages/student/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

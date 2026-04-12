@@ -1,0 +1,17 @@
+<view class="container">
+  <view class="type-tabs">
+    <view 
+      wx:for="{{reportTypes}}" 
+      wx:key="id"
+      class="tab-item {{reportType === item.id ? 'active' : ''}}"
+      bindtap="onTypeChange"
+      data-type="{{item.id}}"
+    >
+      {{item.name}}
+    </view>
+  </view>
+
+  <view class="report-content">
+    <text class="empty-text">暂无数据</text>
+  </view>
+</view>

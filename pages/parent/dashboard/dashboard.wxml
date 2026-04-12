@@ -1,0 +1,82 @@
+<view class="container">
+  <view class="child-selector">
+    <picker mode="selector" range="{{children}}" range-key="name" bindchange="onChildChange">
+      <view class="selector-content">
+        <text class="child-name">{{children[currentChildIndex].name}}</text>
+        <text class="arrow">›</text>
+      </view>
+    </picker>
+  </view>
+
+  <view class="pet-card">
+    <view class="pet-info">
+      <text class="pet-emoji">🐱</text>
+      <view class="pet-detail">
+        <text class="pet-name">{{children[currentChildIndex].petName}}</text>
+        <text class="pet-level">Lv.{{children[currentChildIndex].petLevel}}</text>
+      </view>
+    </view>
+    <view class="pet-stats">
+      <view class="stat-item">
+        <text class="stat-icon">🪙</text>
+        <text class="stat-value">{{children[currentChildIndex].coins}}</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-icon">😊</text>
+        <text class="stat-value">开心</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="progress-card">
+    <view class="card-header">
+      <text class="card-title">今日任务</text>
+      <view class="pending-badge" wx:if="{{pendingCount > 0}}" bindtap="onReviewTap">
+        <text class="pending-num">{{pendingCount}}</text>
+      </view>
+    </view>
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{(todayProgress/todayTotal)*100}}%"></view>
+    </view>
+    <text class="progress-text">{{todayProgress}}/{{todayTotal}} 已完成</text>
+    <view class="progress-percent">{{Math.round((todayProgress/todayTotal)*100)}}%</view>
+  </view>
+
+  <view class="weekly-summary">
+    <view class="card-header">
+      <text class="card-title">本周学习摘要</text>
+    </view>
+    <view class="summary-grid">
+      <view class="summary-item">
+        <text class="summary-value">{{weeklyData.chineseDays}}</text>
+        <text class="summary-label">语文天数</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-value">{{weeklyData.englishAccuracy}}%</text>
+        <text class="summary-label">英语正确率</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-value">{{weeklyData.checkinRate}}%</text>
+        <text class="summary-label">打卡完成率</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="menu-list">
+    <view class="menu-item" bindtap="onTaskManageTap">
+      <text class="menu-icon">📋</text>
+      <text class="menu-name">任务管理</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="onReviewTap">
+      <text class="menu-icon">✅</text>
+      <text class="menu-name">任务审核</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="onReportTap">
+      <text class="menu-icon">📊</text>
+      <text class="menu-name">学习报告</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+</view>

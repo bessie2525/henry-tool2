@@ -1,0 +1,27 @@
+<view class="container">
+  <view class="section">
+    <text class="section-title">今日主题</text>
+    <input 
+      class="theme-input"
+      placeholder="请输入今日主题"
+      value="{{todayTheme}}"
+      bindinput="onThemeInput"
+    />
+    <button class="save-btn" bindtap="onSaveTheme">保存主题</button>
+  </view>
+
+  <view class="section">
+    <text class="section-title">预设主题</text>
+    <view class="theme-list">
+      <view 
+        wx:for="{{themeList}}" 
+        wx:key="*this"
+        class="theme-item"
+        bindtap="onSelectTheme"
+        data-theme="{{item}}"
+      >
+        {{item}}
+      </view>
+    </view>
+  </view>
+</view>

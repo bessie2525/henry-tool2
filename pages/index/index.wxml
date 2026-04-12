@@ -1,0 +1,4 @@
+<view class="container">
+  <text class="title">{{message}}</text>
+  <text class="subtitle">欢迎使用微信小程序</text>
+</view>

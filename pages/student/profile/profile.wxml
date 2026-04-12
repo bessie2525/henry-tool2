@@ -1,0 +1,47 @@
+<view class="container">
+  <view class="user-card">
+    <view class="avatar">
+      <text class="avatar-emoji">🧒</text>
+    </view>
+    <view class="user-info">
+      <text class="nickname">{{studentInfo ? studentInfo.nickname : '学生'}}</text>
+      <view class="stats">
+        <view class="stat-item">
+          <text class="stat-num">{{studentInfo ? studentInfo.consecutiveDays || 0 : 0}}</text>
+          <text class="stat-label">连续打卡</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-num">{{studentInfo ? studentInfo.totalActiveDays || 0 : 0}}</text>
+          <text class="stat-label">总活跃天数</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="invite-card">
+    <text class="invite-title">邀请码</text>
+    <view class="invite-code" bindtap="onCopyInviteCode">
+      <text class="code-text">{{inviteCode}}</text>
+      <text class="copy-hint">点击复制</text>
+    </view>
+    <text class="invite-tip">让家长用这个邀请码绑定你</text>
+  </view>
+
+  <view class="menu-list">
+    <view 
+      wx:for="{{menuList}}" 
+      wx:key="id"
+      class="menu-item"
+      bindtap="onMenuTap"
+      data-menu="{{item}}"
+    >
+      <text class="menu-icon">{{item.icon}}</text>
+      <text class="menu-name">{{item.name}}</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <view class="logout-btn" bindtap="onLogout">
+    退出登录
+  </view>
+</view>

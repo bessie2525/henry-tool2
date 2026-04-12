@@ -1,0 +1,23 @@
+<view class="container">
+  <view class="header">
+    <text class="emoji">👨‍👩‍👧</text>
+    <text class="title">创建家长账号</text>
+  </view>
+  
+  <view class="form">
+    <view class="input-group">
+      <text class="label">昵称</text>
+      <input 
+        class="input" 
+        placeholder="请输入你的昵称" 
+        value="{{nickname}}"
+        bindinput="onNicknameInput"
+        maxlength="10"
+      />
+    </view>
+    
+    <button class="submit-btn" bindtap="onSubmit" loading="{{loading}}">
+      下一步
+    </button>
+  </view>
+</view>

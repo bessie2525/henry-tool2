@@ -1,0 +1,15 @@
+<view class="container">
+  <view class="menu-list">
+    <view 
+      wx:for="{{menuList}}" 
+      wx:key="id"
+      class="menu-item"
+      bindtap="onMenuTap"
+      data-menu="{{item}}"
+    >
+      <text class="menu-icon">{{item.icon}}</text>
+      <text class="menu-name">{{item.name}}</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+</view>

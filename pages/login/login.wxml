@@ -1,0 +1,16 @@
+<view class="container">
+  <view class="logo-area">
+    <text class="logo-emoji">🐱</text>
+    <text class="app-name">学伴精灵</text>
+    <text class="app-slogan">让学习更有趣~</text>
+  </view>
+  
+  <view class="login-area">
+    <button class="login-btn" type="primary" bindtap="onLogin">
+      微信一键登录
+    </button>
+    <button class="clear-btn" bindtap="onClearLogin">
+      清除登录状态（重新选择角色）
+    </button>
+  </view>
+</view>

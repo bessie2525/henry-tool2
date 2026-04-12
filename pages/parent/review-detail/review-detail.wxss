@@ -1,0 +1,65 @@
+.container {
+  min-height: 100vh;
+  padding: 30rpx;
+  background: #F5F7FA;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 40rpx 30rpx;
+  flex: 1;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.content-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.content-text {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.8;
+  margin-bottom: 20rpx;
+}
+
+.content-time {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  text-align: right;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 20rpx;
+  padding-top: 30rpx;
+}
+
+.action-btn {
+  flex: 1;
+  height: 96rpx;
+  line-height: 96rpx;
+  border-radius: 48rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  border: none;
+}
+
+.action-btn.reject {
+  background: #FFF0F0;
+  color: #FF6B6B;
+  border: 2rpx solid #FF6B6B;
+}
+
+.action-btn.approve {
+  background: linear-gradient(135deg, #50E3C2 0%, #4A90E2 100%);
+  color: #fff;
+}

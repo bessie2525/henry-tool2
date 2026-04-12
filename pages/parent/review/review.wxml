@@ -1,0 +1,29 @@
+<view class="container">
+  <view class="filter-bar">
+    <radio-group class="filter-group" bindchange="onFilterChange">
+      <radio value="pending" checked="{{filterType === 'pending'}}" class="filter-item">待审核</radio>
+      <radio value="approved" checked="{{filterType === 'approved'}}" class="filter-item">已通过</radio>
+      <radio value="rejected" checked="{{filterType === 'rejected'}}" class="filter-item">已驳回</radio>
+    </radio-group>
+  </view>
+
+  <view class="review-list">
+    <view 
+      wx:for="{{reviewList}}" 
+      wx:key="id"
+      class="review-card"
+      bindtap="onReviewTap"
+      data-item="{{item}}"
+    >
+      <view class="card-header">
+        <text class="type-icon">{{item.type === 'chinese' ? '📝' : '✅'}}</text>
+        <text class="card-title">{{item.title}}</text>
+        <text class="card-time">{{item.time}}</text>
+      </view>
+      <text class="card-content">{{item.content}}</text>
+      <view class="card-status {{item.status}}">
+        {{item.status === 'pending' ? '待审核' : item.status === 'approved' ? '已通过' : '已驳回'}}
+      </view>
+    </view>
+  </view>
+</view>

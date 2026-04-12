@@ -1,0 +1,24 @@
+.coin-display {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.coin-icon {
+  font-size: 32rpx;
+}
+
+.coin-amount {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #F5A623;
+}
+
+.coin-display.animating .coin-amount {
+  animation: pulse 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}

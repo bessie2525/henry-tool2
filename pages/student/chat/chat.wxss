@@ -1,0 +1,138 @@
+.container {
+  min-height: 100vh;
+  background: #F5F7FA;
+  display: flex;
+  flex-direction: column;
+}
+
+.remaining-badge {
+  background: #FFF9E6;
+  padding: 16rpx 30rpx;
+  text-align: center;
+}
+
+.remaining-text {
+  font-size: 24rpx;
+  color: #F5A623;
+}
+
+.message-list {
+  flex: 1;
+  padding: 30rpx;
+}
+
+.message-item {
+  display: flex;
+  margin-bottom: 30rpx;
+}
+
+.message-item.pet {
+  flex-direction: row;
+}
+
+.message-item.user {
+  flex-direction: row-reverse;
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.avatar-emoji {
+  font-size: 40rpx;
+}
+
+.message-bubble {
+  max-width: 500rpx;
+  padding: 20rpx 24rpx;
+  border-radius: 24rpx;
+  position: relative;
+}
+
+.message-item.pet .message-bubble {
+  background: #fff;
+  border-top-left-radius: 4rpx;
+}
+
+.message-item.user .message-bubble {
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+  border-top-right-radius: 4rpx;
+}
+
+.message-text {
+  display: block;
+  font-size: 28rpx;
+  line-height: 1.6;
+  margin-bottom: 8rpx;
+}
+
+.message-item.pet .message-text {
+  color: #333;
+}
+
+.message-item.user .message-text {
+  color: #fff;
+}
+
+.message-time {
+  display: block;
+  font-size: 20rpx;
+  color: #999;
+  text-align: right;
+}
+
+.message-item.user .message-time {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.empty-emoji {
+  font-size: 100rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.input-area {
+  background: #fff;
+  padding: 20rpx 30rpx;
+  display: flex;
+  gap: 20rpx;
+  box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.input-box {
+  flex: 1;
+  height: 80rpx;
+  background: #F5F7FA;
+  border-radius: 40rpx;
+  padding: 0 24rpx;
+  font-size: 28rpx;
+}
+
+.send-btn {
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+  color: #fff;
+  border: none;
+  border-radius: 40rpx;
+  padding: 0 30rpx;
+  font-size: 26rpx;
+}

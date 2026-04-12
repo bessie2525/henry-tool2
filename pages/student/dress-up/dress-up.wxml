@@ -1,0 +1,21 @@
+<view class="container">
+  <view class="pet-display">
+    <text class="pet-emoji">🐱</text>
+  </view>
+
+  <view class="category-bar">
+    <view 
+      wx:for="{{categories}}" 
+      wx:key="id"
+      class="category-item {{selectedCategory === item.id ? 'active' : ''}}"
+      bindtap="onCategoryTap"
+      data-category="{{item}}"
+    >
+      {{item.name}}
+    </view>
+  </view>
+
+  <view class="item-list">
+    <text class="empty-text">暂无物品</text>
+  </view>
+</view>

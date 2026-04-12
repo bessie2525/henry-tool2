@@ -1,0 +1,71 @@
+.container {
+  min-height: 100vh;
+  padding: 30rpx;
+  background: #F5F7FA;
+}
+
+.child-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.child-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.child-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.child-emoji {
+  font-size: 60rpx;
+  margin-right: 20rpx;
+}
+
+.child-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.child-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.child-code {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.child-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.action-btn {
+  flex: 1;
+  height: 72rpx;
+  line-height: 72rpx;
+  border-radius: 36rpx;
+  font-size: 26rpx;
+  border: none;
+}
+
+.action-btn.copy {
+  background: #E8F4FD;
+  color: #4A90E2;
+}
+
+.action-btn.unbind {
+  background: #FFF0F0;
+  color: #FF6B6B;
+}

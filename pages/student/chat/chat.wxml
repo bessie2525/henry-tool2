@@ -1,0 +1,34 @@
+<view class="container">
+  <view class="remaining-badge">
+    <text class="remaining-text">今日剩余对话：{{remaining}}/20</text>
+  </view>
+
+  <scroll-view class="message-list" scroll-y scroll-into-view="msg-{{messages.length > 0 ? messages[messages.length-1].id : ''}}">
+    <view wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}" class="message-item {{item.type}}">
+      <view class="avatar">
+        <text class="avatar-emoji">{{item.type === 'pet' ? '🐱' : '🧒'}}</text>
+      </view>
+      <view class="message-bubble">
+        <text class="message-text">{{item.content}}</text>
+        <text class="message-time">{{item.time}}</text>
+      </view>
+    </view>
+    
+    <view wx:if="{{messages.length === 0}}" class="empty-state">
+      <text class="empty-emoji">💬</text>
+      <text class="empty-text">和宠物聊聊天吧~</text>
+    </view>
+  </scroll-view>
+
+  <view class="input-area">
+    <input 
+      class="input-box"
+      placeholder="说点什么..."
+      value="{{inputText}}"
+      bindinput="onInputText"
+      confirm-type="send"
+      bindconfirm="onSend"
+    />
+    <button class="send-btn" bindtap="onSend">发送</button>
+  </view>
+</view>

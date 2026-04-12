@@ -1,0 +1,46 @@
+<view class="container">
+  <scroll-view class="category-bar" scroll-x>
+    <view 
+      wx:for="{{categories}}" 
+      wx:key="id"
+      class="category-item {{selectedCategory === item.id ? 'active' : ''}}"
+      bindtap="onCategoryTap"
+      data-category="{{item}}"
+    >
+      <text class="cat-emoji">{{item.emoji}}</text>
+      <text class="cat-name">{{item.name}}</text>
+    </view>
+  </scroll-view>
+
+  <view class="daily-recommend">
+    <view class="recommend-header">
+      <text class="recommend-title">🔥 今日推荐</text>
+      <text class="recommend-tag">9折</text>
+    </view>
+    <view class="recommend-list">
+      <view wx:for="{{items}}" wx:key="id" class="recommend-item">
+        <text class="item-emoji">{{item.emoji}}</text>
+        <text class="item-name">{{item.name}}</text>
+        <text class="item-price">🪙 {{Math.floor(item.price * 0.9)}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="shop-grid">
+    <view 
+      wx:for="{{items}}" 
+      wx:key="id"
+      wx:if="{{item.category === selectedCategory}}"
+      class="shop-item"
+      bindtap="onItemTap"
+      data-item="{{item}}"
+    >
+      <text class="item-emoji">{{item.emoji}}</text>
+      <text class="item-name">{{item.name}}</text>
+      <view class="item-price-tag">
+        <text class="price-icon">🪙</text>
+        <text class="price-num">{{item.price}}</text>
+      </view>
+    </view>
+  </view>
+</view>

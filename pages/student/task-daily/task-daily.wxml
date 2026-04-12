@@ -1,0 +1,20 @@
+<view class="container">
+  <view class="task-list">
+    <view 
+      wx:for="{{tasks}}" 
+      wx:key="id"
+      class="task-card"
+      bindtap="onTaskTap"
+      data-task="{{item}}"
+    >
+      <text class="task-icon">{{item.icon}}</text>
+      <view class="task-info">
+        <text class="task-name">{{item.name}}</text>
+        <text class="task-tag" wx:if="{{item.requirePhoto}}">📸 需拍照</text>
+      </view>
+      <view class="task-status {{item.status}}">
+        {{item.status === 'approved' ? '已完成' : item.status === 'submitted' ? '待审核' : '去打卡'}}
+      </view>
+    </view>
+  </view>
+</view>

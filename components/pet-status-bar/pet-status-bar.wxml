@@ -1,0 +1,23 @@
+<view class="status-bar">
+  <view class="status-item">
+    <text class="status-label">🍖 饱食度</text>
+    <view class="progress-bar">
+      <view class="progress-fill hunger" style="width: {{hunger}}%"></view>
+    </view>
+    <text class="status-value">{{hunger}}%</text>
+  </view>
+  <view class="status-item">
+    <text class="status-label">💧 口渴度</text>
+    <view class="progress-bar">
+      <view class="progress-fill thirst" style="width: {{thirst}}%"></view>
+    </view>
+    <text class="status-value">{{thirst}}%</text>
+  </view>
+  <view class="status-item">
+    <text class="status-label">😊 心情值</text>
+    <view class="progress-bar">
+      <view class="progress-fill mood" style="width: {{mood}}%"></view>
+    </view>
+    <text class="status-value">{{mood}}%</text>
+  </view>
+</view>

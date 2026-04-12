@@ -1,0 +1,30 @@
+<view class="container">
+  <view class="theme-card">
+    <text class="theme-label">今日主题</text>
+    <text class="theme-text">{{todayTheme}}</text>
+  </view>
+
+  <view class="editor-area">
+    <textarea 
+      class="editor"
+      placeholder="请输入10-200个字..."
+      value="{{content}}"
+      bindinput="onContentInput"
+      maxlength="200"
+      auto-height
+    />
+    <view class="editor-footer">
+      <button class="voice-btn" bindtap="onVoiceInput">🎤 语音输入</button>
+      <text class="char-count">{{content.length}}/200</text>
+    </view>
+  </view>
+
+  <button class="submit-btn" bindtap="onSubmit">提交</button>
+
+  <view class="history-section">
+    <text class="section-title">历史记录</text>
+    <view class="history-list">
+      <text class="empty-tip">暂无历史记录</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,37 @@
+.container {
+  min-height: 100vh;
+  background: #F5F7FA;
+}
+
+.type-tabs {
+  display: flex;
+  background: #fff;
+  padding: 20rpx 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  border-radius: 30rpx;
+}
+
+.tab-item.active {
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+  color: #fff;
+}
+
+.report-content {
+  padding: 30rpx;
+}
+
+.empty-text {
+  display: block;
+  text-align: center;
+  padding: 100rpx 0;
+  font-size: 28rpx;
+  color: #999;
+}

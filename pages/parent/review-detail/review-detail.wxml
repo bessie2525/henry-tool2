@@ -1,0 +1,12 @@
+<view class="container" wx:if="{{review}}">
+  <view class="content-card">
+    <text class="content-title">{{review.title}}</text>
+    <text class="content-text">{{review.content}}</text>
+    <text class="content-time">{{review.time}}</text>
+  </view>
+
+  <view class="action-buttons">
+    <button class="action-btn reject" bindtap="onReject">驳回</button>
+    <button class="action-btn approve" bindtap="onApprove">通过</button>
+  </view>
+</view>

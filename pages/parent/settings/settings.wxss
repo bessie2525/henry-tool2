@@ -8,6 +8,7 @@
   background: #fff;
   border-radius: 24rpx;
   overflow: hidden;
+  margin-bottom: 30rpx;
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06);
 }
 
@@ -36,4 +37,25 @@
 .menu-arrow {
   font-size: 36rpx;
   color: #CCC;
+}
+
+.switch-btn {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  text-align: center;
+  font-size: 30rpx;
+  color: #fff;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 12rpx rgba(76, 175, 80, 0.3);
+}
+
+.logout-btn {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  text-align: center;
+  font-size: 30rpx;
+  color: #FF6B6B;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06);
 }

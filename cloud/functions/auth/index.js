@@ -25,6 +25,8 @@ exports.main = async (event, context) => {
         return await bindChild(event, wxContext)
       case 'get_user_info':
         return await getUserInfo(wxContext)
+      case 'select_role':
+        return await selectRole(event, wxContext)
       default:
         return {
           success: false,
@@ -63,25 +65,36 @@ async function login(wxContext) {
       data: { lastLoginAt: new Date() }
     })
     
-    let profile = null
-    if (user.role === 'student') {
-      const studentRes = await db.collection('students').where({
-        userId: user._id
-      }).get()
-      profile = studentRes.data[0] || null
-    } else if (user.role === 'parent') {
-      const parentRes = await db.collection('parents').where({
-        userId: user._id
-      }).get()
-      profile = parentRes.data[0] || null
+    const identities = []
+    
+    const studentRes = await db.collection('students').where({
+      userId: user._id
+    }).get()
+    
+    if (studentRes.data.length > 0) {
+      identities.push({
+        role: 'student',
+        profile: studentRes.data[0]
+      })
+    }
+    
+    const parentRes = await db.collection('parents').where({
+      userId: user._id
+    }).get()
+    
+    if (parentRes.data.length > 0) {
+      identities.push({
+        role: 'parent',
+        profile: parentRes.data[0]
+      })
     }
     
     return {
       success: true,
       registered: true,
-      role: user.role,
-      user: user,
-      profile: profile
+      hasMultipleRoles: identities.length > 1,
+      identities: identities,
+      user: user
     }
   } else {
     return {
@@ -95,15 +108,38 @@ async function registerStudent(event, wxContext) {
   const { OPENID } = wxContext
   const { nickname } = event
   
-  const userRes = await db.collection('users').add({
-    data: {
-      openId: OPENID,
-      role: 'student',
-      nickname: nickname,
-      createdAt: new Date(),
-      lastLoginAt: new Date()
+  let userRes = await db.collection('users').where({
+    openId: OPENID
+  }).get()
+  
+  let userId
+  if (userRes.data.length === 0) {
+    const newUser = await db.collection('users').add({
+      data: {
+        openId: OPENID,
+        nickname: nickname,
+        createdAt: new Date(),
+        lastLoginAt: new Date()
+      }
+    })
+    userId = newUser._id
+  } else {
+    userId = userRes.data[0]._id
+    await db.collection('users').doc(userId).update({
+      data: { lastLoginAt: new Date() }
+    })
+  }
+  
+  const existingStudent = await db.collection('students').where({
+    userId: userId
+  }).get()
+  
+  if (existingStudent.data.length > 0) {
+    return {
+      success: false,
+      message: '该账号已注册学生身份'
     }
-  })
+  }
   
   let inviteCode
   let codeExists = true
@@ -117,7 +153,7 @@ async function registerStudent(event, wxContext) {
   
   const studentRes = await db.collection('students').add({
     data: {
-      userId: userRes._id,
+      userId: userId,
       inviteCode: inviteCode,
       coinBalance: 0,
       totalCoinsEarned: 0,
@@ -130,7 +166,7 @@ async function registerStudent(event, wxContext) {
   
   return {
     success: true,
-    userId: userRes._id,
+    userId: userId,
     studentId: studentRes._id,
     inviteCode: inviteCode
   }
@@ -140,33 +176,56 @@ async function registerParent(event, wxContext) {
   const { OPENID } = wxContext
   const { nickname } = event
   
-  const userRes = await db.collection('users').add({
-    data: {
-      openId: OPENID,
-      role: 'parent',
-      nickname: nickname,
-      createdAt: new Date(),
-      lastLoginAt: new Date()
+  let userRes = await db.collection('users').where({
+    openId: OPENID
+  }).get()
+  
+  let userId
+  if (userRes.data.length === 0) {
+    const newUser = await db.collection('users').add({
+      data: {
+        openId: OPENID,
+        nickname: nickname,
+        createdAt: new Date(),
+        lastLoginAt: new Date()
+      }
+    })
+    userId = newUser._id
+  } else {
+    userId = userRes.data[0]._id
+    await db.collection('users').doc(userId).update({
+      data: { lastLoginAt: new Date() }
+    })
+  }
+  
+  const existingParent = await db.collection('parents').where({
+    userId: userId
+  }).get()
+  
+  if (existingParent.data.length > 0) {
+    return {
+      success: false,
+      message: '该账号已注册家长身份'
     }
-  })
+  }
   
   const parentRes = await db.collection('parents').add({
     data: {
-      userId: userRes._id,
+      userId: userId,
       createdAt: new Date()
     }
   })
   
   return {
     success: true,
-    userId: userRes._id,
+    userId: userId,
     parentId: parentRes._id
   }
 }
 
 async function bindChild(event, wxContext) {
   const { OPENID } = wxContext
-  const { inviteCode } = event
+  const { inviteCode, userId } = event
   
   const parentUserRes = await db.collection('users').where({
     openId: OPENID
@@ -177,12 +236,9 @@ async function bindChild(event, wxContext) {
   }
   
   const parentUser = parentUserRes.data[0]
-  if (parentUser.role !== 'parent') {
-    return { success: false, message: '只有家长账号可以绑定孩子' }
-  }
   
   const parentRes = await db.collection('parents').where({
-    userId: parentUser._id
+    userId: userId || parentUser._id
   }).get()
   
   if (parentRes.data.length === 0) {
@@ -238,15 +294,67 @@ async function getUserInfo(wxContext) {
   }
   
   const user = userRes.data[0]
+  
+  const identities = []
+  
+  const studentRes = await db.collection('students').where({
+    userId: user._id
+  }).get()
+  
+  if (studentRes.data.length > 0) {
+    identities.push({
+      role: 'student',
+      profile: studentRes.data[0]
+    })
+  }
+  
+  const parentRes = await db.collection('parents').where({
+    userId: user._id
+  }).get()
+  
+  if (parentRes.data.length > 0) {
+    const parent = parentRes.data[0]
+    const bindingRes = await db.collection('bindings').where({
+      parentId: parent._id
+    }).get()
+    
+    identities.push({
+      role: 'parent',
+      profile: parent,
+      bindings: bindingRes.data
+    })
+  }
+  
+  return {
+    success: true,
+    user: user,
+    identities: identities
+  }
+}
+
+async function selectRole(event, wxContext) {
+  const { OPENID } = wxContext
+  const { role } = event
+  
+  const userRes = await db.collection('users').where({
+    openId: OPENID
+  }).get()
+  
+  if (userRes.data.length === 0) {
+    return { success: false, message: '用户不存在' }
+  }
+  
+  const user = userRes.data[0]
+  
   let profile = null
   let bindings = []
   
-  if (user.role === 'student') {
+  if (role === 'student') {
     const studentRes = await db.collection('students').where({
       userId: user._id
     }).get()
     profile = studentRes.data[0] || null
-  } else if (user.role === 'parent') {
+  } else if (role === 'parent') {
     const parentRes = await db.collection('parents').where({
       userId: user._id
     }).get()
@@ -262,6 +370,7 @@ async function getUserInfo(wxContext) {
   
   return {
     success: true,
+    role: role,
     user: user,
     profile: profile,
     bindings: bindings

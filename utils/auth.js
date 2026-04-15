@@ -5,6 +5,7 @@ const AUTH_KEYS = {
   STUDENT_INFO: 'student_info',
   PARENT_INFO: 'parent_info',
   CURRENT_ROLE: 'current_role',
+  IDENTITIES: 'identities',
   TOKEN: 'auth_token'
 }
 
@@ -22,6 +23,23 @@ function getUserInfo() {
     return wx.getStorageSync(AUTH_KEYS.USER_INFO) || null
   } catch (e) {
     return null
+  }
+}
+
+function setIdentities(identities) {
+  try {
+    wx.setStorageSync(AUTH_KEYS.IDENTITIES, identities)
+    app.globalData.identities = identities
+  } catch (e) {
+    console.error('保存身份列表失败', e)
+  }
+}
+
+function getIdentities() {
+  try {
+    return wx.getStorageSync(AUTH_KEYS.IDENTITIES) || []
+  } catch (e) {
+    return []
   }
 }
 
@@ -82,14 +100,30 @@ function clearAuth() {
     wx.removeStorageSync(AUTH_KEYS.STUDENT_INFO)
     wx.removeStorageSync(AUTH_KEYS.PARENT_INFO)
     wx.removeStorageSync(AUTH_KEYS.CURRENT_ROLE)
+    wx.removeStorageSync(AUTH_KEYS.IDENTITIES)
     wx.removeStorageSync(AUTH_KEYS.TOKEN)
     
     app.globalData.userInfo = null
     app.globalData.studentInfo = null
     app.globalData.parentInfo = null
     app.globalData.currentRole = null
+    app.globalData.identities = []
   } catch (e) {
     console.error('清除认证信息失败', e)
+  }
+}
+
+function clearCurrentRole() {
+  try {
+    wx.removeStorageSync(AUTH_KEYS.CURRENT_ROLE)
+    wx.removeStorageSync(AUTH_KEYS.STUDENT_INFO)
+    wx.removeStorageSync(AUTH_KEYS.PARENT_INFO)
+    
+    app.globalData.currentRole = null
+    app.globalData.studentInfo = null
+    app.globalData.parentInfo = null
+  } catch (e) {
+    console.error('清除当前角色失败', e)
   }
 }
 
@@ -105,6 +139,11 @@ function isParent() {
   return getCurrentRole() === 'parent'
 }
 
+function hasMultipleRoles() {
+  const identities = getIdentities()
+  return identities.length > 1
+}
+
 async function login() {
   return new Promise((resolve, reject) => {
     wx.cloud.callFunction({
@@ -112,15 +151,40 @@ async function login() {
       data: { action: 'login' }
     }).then(res => {
       if (res.result.success) {
-        const { registered, role, user, profile } = res.result
+        const { registered, user, identities, hasMultipleRoles } = res.result
         if (registered) {
           setUserInfo(user)
-          setCurrentRole(role)
-          if (role === 'student' && profile) {
-            setStudentInfo(profile)
-          } else if (role === 'parent' && profile) {
-            setParentInfo(profile)
+          if (identities) {
+            setIdentities(identities)
           }
+        }
+        resolve(res.result)
+      } else {
+        reject(res.result)
+      }
+    }).catch(err => {
+      reject(err)
+    })
+  })
+}
+
+async function selectRole(role) {
+  return new Promise((resolve, reject) => {
+    wx.cloud.callFunction({
+      name: 'auth',
+      data: { 
+        action: 'select_role',
+        role: role
+      }
+    }).then(res => {
+      if (res.result.success) {
+        const { user, profile, bindings } = res.result
+        setCurrentRole(role)
+        if (role === 'student' && profile) {
+          setStudentInfo(profile)
+        } else if (role === 'parent' && profile) {
+          setParentInfo(profile)
+          app.globalData.bindings = bindings || []
         }
         resolve(res.result)
       } else {
@@ -199,15 +263,12 @@ async function getUserInfoFromServer() {
       data: { action: 'get_user_info' }
     }).then(res => {
       if (res.result.success) {
-        const { user, profile, bindings } = res.result
+        const { user, identities } = res.result
         setUserInfo(user)
-        setCurrentRole(user.role)
-        if (user.role === 'student' && profile) {
-          setStudentInfo(profile)
-        } else if (user.role === 'parent' && profile) {
-          setParentInfo(profile)
+        if (identities) {
+          setIdentities(identities)
         }
-        resolve({ user, profile, bindings })
+        resolve(res.result)
       } else {
         reject(res.result)
       }
@@ -220,6 +281,8 @@ async function getUserInfoFromServer() {
 module.exports = {
   setUserInfo,
   getUserInfo,
+  setIdentities,
+  getIdentities,
   setStudentInfo,
   getStudentInfo,
   setParentInfo,
@@ -227,10 +290,13 @@ module.exports = {
   setCurrentRole,
   getCurrentRole,
   clearAuth,
+  clearCurrentRole,
   isLoggedIn,
   isStudent,
   isParent,
+  hasMultipleRoles,
   login,
+  selectRole,
   registerStudent,
   registerParent,
   bindChild,

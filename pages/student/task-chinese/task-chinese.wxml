@@ -19,7 +19,7 @@
     </view>
   </view>
 
-  <button class="submit-btn" bindtap="onSubmit">提交</button>
+  <button class="submit-btn" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? '提交中...' : '提交'}}</button>
 
   <view class="history-section">
     <text class="section-title">历史记录</text>

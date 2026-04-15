@@ -1,0 +1,120 @@
+.container {
+  min-height: 100vh;
+  padding: 30rpx;
+  background: #F5F7FA;
+}
+
+.section {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 30rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.section-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.form-group {
+  margin-bottom: 20rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 88rpx;
+  border: 2rpx solid #E0E0E0;
+  border-radius: 12rpx;
+  padding: 0 24rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.picker {
+  width: 100%;
+  height: 88rpx;
+  border: 2rpx solid #E0E0E0;
+  border-radius: 12rpx;
+  padding: 0 24rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.picker-arrow {
+  font-size: 36rpx;
+  color: #CCC;
+}
+
+.add-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+  color: #fff;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+  border: none;
+}
+
+.word-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.word-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx;
+  background: #F5F7FA;
+  border-radius: 16rpx;
+}
+
+.word-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.word-english {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.word-chinese {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.word-category {
+  font-size: 22rpx;
+  color: #999;
+  background: #E8F4FF;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  align-self: flex-start;
+}
+
+.word-actions {
+  display: flex;
+  align-items: center;
+}
+
+.delete-btn {
+  font-size: 26rpx;
+  color: #FF6B6B;
+  padding: 12rpx 20rpx;
+  background: #FFF0F0;
+  border-radius: 12rpx;
+}

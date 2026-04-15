@@ -1,37 +1,70 @@
+const { callCloudFunction } = require('../../../utils/api')
+
 Page({
   data: {
-    tasks: [
-      { id: 'chinese', name: '语文每日一记', icon: '📝', status: 'pending', reward: 10 },
-      { id: 'english', name: '英语单词大冒险', icon: '🔤', status: 'pending', reward: 10 },
-      { id: 'daily1', name: '阅读30分钟', icon: '📚', status: 'pending', reward: 5 },
-      { id: 'daily2', name: '运动打卡', icon: '🏃', status: 'pending', reward: 5 }
-    ],
-    completedCount: 0,
-    totalCount: 4
+    tasks: [],
+    loading: true
   },
 
   onLoad() {
     this.loadTasks()
   },
 
-  loadTasks() {
-    const completed = this.data.tasks.filter(t => t.status === 'approved').length
-    this.setData({ completedCount: completed })
+  onShow() {
+    this.loadTasks()
+  },
+
+  onPullDownRefresh() {
+    this.loadTasks().then(() => {
+      wx.stopPullDownRefresh()
+    })
+  },
+
+  async loadTasks() {
+    try {
+      this.setData({ loading: true })
+
+      const res = await callCloudFunction('task', {
+        action: 'today'
+      })
+
+      if (res.success) {
+        const tasks = res.tasks.map(task => ({
+          id: task.id,
+          type: task.type,
+          name: task.title,
+          description: task.description,
+          icon: task.type === 'chinese' ? '📝' : task.type === 'english' ? '🔤' : '✅',
+          status: 'pending',
+          reward: task.coinReward,
+          expReward: task.expReward
+        }))
+        this.setData({ tasks })
+      }
+    } catch (error) {
+      console.error('加载任务失败:', error)
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      })
+    } finally {
+      this.setData({ loading: false })
+    }
   },
 
   onTaskTap(e) {
     const task = e.currentTarget.dataset.task
-    if (task.id === 'chinese') {
+    if (task.type === 'chinese') {
       wx.navigateTo({
-        url: '/pages/student/task-chinese/task-chinese'
+        url: `/pages/student/task-chinese/task-chinese?taskId=${task.id}&taskTitle=${task.name}`
       })
-    } else if (task.id === 'english') {
+    } else if (task.type === 'english') {
       wx.navigateTo({
-        url: '/pages/student/task-english-learn/task-english-learn'
+        url: `/pages/student/task-english-learn/task-english-learn?taskId=${task.id}&taskTitle=${task.name}`
       })
     } else {
       wx.navigateTo({
-        url: '/pages/student/task-daily/task-daily'
+        url: `/pages/student/task-daily/task-daily?taskId=${task.id}&taskTitle=${task.name}`
       })
     }
   }

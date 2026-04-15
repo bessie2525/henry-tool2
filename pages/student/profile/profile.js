@@ -4,6 +4,7 @@ Page({
   data: {
     studentInfo: null,
     inviteCode: 'ABC123',
+    hasMultipleRoles: false,
     menuList: [
       { id: 'achievement', name: '我的成就', icon: '🏆', path: '/pages/student/achievement/achievement' },
       { id: 'settings', name: '设置', icon: '⚙️', path: '' }
@@ -14,12 +15,18 @@ Page({
     this.loadUserInfo()
   },
 
+  onShow() {
+    this.loadUserInfo()
+  },
+
   loadUserInfo() {
     const studentInfo = auth.getStudentInfo()
+    const hasMultipleRoles = auth.hasMultipleRoles()
     if (studentInfo) {
       this.setData({ 
         studentInfo: studentInfo,
-        inviteCode: studentInfo.inviteCode || 'ABC123'
+        inviteCode: studentInfo.inviteCode || 'ABC123',
+        hasMultipleRoles: hasMultipleRoles
       })
     }
   },
@@ -48,6 +55,12 @@ Page({
         icon: 'none'
       })
     }
+  },
+
+  onSwitchRole() {
+    wx.redirectTo({
+      url: '/pages/role-select/role-select?fromLogin=1'
+    })
   },
 
   onLogout() {

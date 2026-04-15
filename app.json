@@ -19,6 +19,8 @@
     "pages/parent/dashboard/dashboard",
     "pages/parent/task-manage/task-manage",
     "pages/parent/task-manage-chinese/task-manage-chinese",
+    "pages/parent/task-manage-english/task-manage-english",
+    "pages/parent/task-manage-daily/task-manage-daily",
     "pages/parent/review/review",
     "pages/parent/review-detail/review-detail",
     "pages/parent/report/report",

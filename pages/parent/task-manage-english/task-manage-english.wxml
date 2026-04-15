@@ -1,0 +1,50 @@
+<view class="container">
+  <view class="section">
+    <text class="section-title">添加单词</text>
+    <view class="form-group">
+      <input 
+        class="form-input"
+        placeholder="单词（如：apple）"
+        value="{{newWord}}"
+        bindinput="onWordInput"
+      />
+    </view>
+    <view class="form-group">
+      <input 
+        class="form-input"
+        placeholder="中文意思（如：苹果）"
+        value="{{newMeaning}}"
+        bindinput="onMeaningInput"
+      />
+    </view>
+    <view class="form-group">
+      <picker mode="selector" range="{{['水果', '动物', '颜色', '数字', '身体']}}" bindchange="onCategoryChange">
+        <view class="picker">
+          <text>{{newCategory}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+    <button class="add-btn" bindtap="onAddWord">添加单词</button>
+  </view>
+
+  <view class="section">
+    <text class="section-title">单词列表</text>
+    <view class="word-list">
+      <view 
+        wx:for="{{wordList}}" 
+        wx:key="id"
+        class="word-item"
+      >
+        <view class="word-info">
+          <text class="word-english">{{item.word}}</text>
+          <text class="word-chinese">{{item.meaning}}</text>
+          <text class="word-category">{{item.category}}</text>
+        </view>
+        <view class="word-actions">
+          <text class="delete-btn" bindtap="onDeleteWord" data-id="{{item.id}}">删除</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

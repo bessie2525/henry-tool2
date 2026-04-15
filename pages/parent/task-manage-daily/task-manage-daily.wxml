@@ -1,0 +1,70 @@
+<view class="container">
+  <view class="section">
+    <text class="section-title">添加日常任务</text>
+    <view class="form-group">
+      <input 
+        class="form-input"
+        placeholder="任务标题（如：运动打卡）"
+        value="{{newTaskTitle}}"
+        bindinput="onTitleInput"
+      />
+    </view>
+    <view class="form-group">
+      <input 
+        class="form-input"
+        placeholder="任务描述（如：运动30分钟）"
+        value="{{newTaskDesc}}"
+        bindinput="onDescInput"
+      />
+    </view>
+    <view class="form-row">
+      <view class="form-item">
+        <text class="form-label">金币奖励</text>
+        <input 
+          class="form-input-small"
+          type="number"
+          value="{{newCoinReward}}"
+          bindinput="onCoinInput"
+        />
+      </view>
+      <view class="form-item">
+        <text class="form-label">经验奖励</text>
+        <input 
+          class="form-input-small"
+          type="number"
+          value="{{newExpReward}}"
+          bindinput="onExpInput"
+        />
+      </view>
+    </view>
+    <button class="add-btn" bindtap="onAddTask">添加任务</button>
+  </view>
+
+  <view class="section">
+    <text class="section-title">日常任务列表</text>
+    <view class="task-list">
+      <view 
+        wx:for="{{taskList}}" 
+        wx:key="id"
+        class="task-item"
+      >
+        <view class="task-info">
+          <view class="task-header">
+            <text class="task-title">{{item.title}}</text>
+            <view class="task-status {{item.enabled ? 'enabled' : 'disabled'}}" bindtap="onToggleTask" data-id="{{item.id}}">
+              {{item.enabled ? '已启用' : '已禁用'}}
+            </view>
+          </view>
+          <text class="task-desc">{{item.description}}</text>
+          <view class="task-rewards">
+            <text class="reward">🪙 {{item.coinReward}}</text>
+            <text class="reward">⭐ {{item.expReward}}</text>
+          </view>
+        </view>
+        <view class="task-actions">
+          <text class="delete-btn" bindtap="onDeleteTask" data-id="{{item.id}}">删除</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

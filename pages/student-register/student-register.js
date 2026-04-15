@@ -38,16 +38,24 @@ Page({
     auth.registerStudent(nickname).then(result => {
       wx.hideLoading()
       
-      auth.setCurrentRole('student')
-      auth.setStudentInfo({
-        _id: result.studentId,
-        inviteCode: result.inviteCode,
-        coinBalance: 0
+      wx.showToast({
+        title: '注册成功！',
+        icon: 'success',
+        duration: 1000
       })
       
-      wx.redirectTo({
-        url: '/pages/pet-create/pet-create'
-      })
+      setTimeout(() => {
+        auth.setCurrentRole('student')
+        auth.setStudentInfo({
+          _id: result.studentId,
+          inviteCode: result.inviteCode,
+          coinBalance: 0
+        })
+        
+        wx.redirectTo({
+          url: '/pages/pet-create/pet-create'
+        })
+      }, 1000)
       
       this.setData({ loading: false })
     }).catch(err => {

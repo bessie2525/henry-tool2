@@ -12,4 +12,12 @@
       <text class="menu-arrow">›</text>
     </view>
   </view>
+
+  <view wx:if="{{hasMultipleRoles}}" class="switch-btn" bindtap="onSwitchRole">
+    切换身份
+  </view>
+
+  <view class="logout-btn" bindtap="onLogout">
+    退出登录
+  </view>
 </view>

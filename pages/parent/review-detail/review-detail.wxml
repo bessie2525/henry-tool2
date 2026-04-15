@@ -1,12 +1,66 @@
-<view class="container" wx:if="{{review}}">
-  <view class="content-card">
-    <text class="content-title">{{review.title}}</text>
-    <text class="content-text">{{review.content}}</text>
-    <text class="content-time">{{review.time}}</text>
+<view class="container" wx:if="{{!loading}}">
+  <view class="content-card" wx:if="{{submission}}">
+    <view class="card-header">
+      <text class="type-icon">{{submission.taskType === 'chinese' ? '📝' : submission.taskType === 'english' ? '📚' : '✅'}}</text>
+      <text class="card-title">{{submission.taskTitle}}</text>
+    </view>
+
+    <view class="student-info">
+      <text class="student-label">提交者：</text>
+      <text class="student-name">{{student ? student.name : '未知'}}</text>
+    </view>
+
+    <view class="content-section">
+      <text class="section-label">任务内容：</text>
+      <text class="content-text">{{formatContent(submission.submissionContent, submission.taskType)}}</text>
+    </view>
+
+    <view class="time-info">
+      <text class="time-label">提交时间：</text>
+      <text class="time-text">{{submission.submitTime}}</text>
+    </view>
+
+    <view class="status-badge {{submission.status}}">
+      {{submission.status === 'pending' ? '待审核' : submission.status === 'approved' ? '已通过' : '已驳回'}}
+    </view>
   </view>
 
-  <view class="action-buttons">
-    <button class="action-btn reject" bindtap="onReject">驳回</button>
-    <button class="action-btn approve" bindtap="onApprove">通过</button>
+  <view class="empty-state" wx:else>
+    <text>数据加载失败</text>
   </view>
+
+  <view class="reward-section" wx:if="{{submission && submission.status === 'pending'}}">
+    <text class="section-title">奖励设置</text>
+    <view class="reward-item">
+      <text class="reward-label">金币奖励：</text>
+      <input 
+        class="reward-input" 
+        type="number" 
+        value="{{coinReward}}" 
+        bindinput="onCoinRewardChange"
+        placeholder="输入金币数"
+      />
+      <text class="reward-unit">个</text>
+    </view>
+    <view class="reward-item">
+      <text class="reward-label">经验奖励：</text>
+      <input 
+        class="reward-input" 
+        type="number" 
+        value="{{expReward}}" 
+        bindinput="onExpRewardChange"
+        placeholder="输入经验值"
+      />
+      <text class="reward-unit">点</text>
+    </view>
+  </view>
+
+  <view class="action-buttons" wx:if="{{submission && submission.status === 'pending'}}">
+    <button class="action-btn reject" bindtap="onReject" disabled="{{submitting}}">驳回</button>
+    <button class="action-btn approve" bindtap="onApprove" disabled="{{submitting}}">{{submitting ? '处理中...' : '通过'}}</button>
+  </view>
+</view>
+
+<view class="loading-container" wx:if="{{loading}}">
+  <text>加载中...</text>
 </view>

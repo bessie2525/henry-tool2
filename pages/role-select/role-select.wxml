@@ -1,17 +1,54 @@
 <view class="container">
-  <view class="title">请选择你的身份</view>
-  
-  <view class="role-list">
-    <view class="role-card" bindtap="onSelectStudent">
-      <text class="role-emoji">🧒</text>
-      <text class="role-name">我是学生</text>
-      <text class="role-desc">养宠物，完成学习任务</text>
+  <view class="header">
+    <text class="title">选择身份</text>
+    <text class="subtitle">请选择您的身份使用小程序</text>
+  </view>
+
+  <view wx:if="{{fromLogin}}" class="existing-roles">
+    <text class="section-title">选择已有身份</text>
+    <view class="role-list">
+      <view 
+        wx:for="{{identities}}" 
+        wx:key="role"
+        class="role-card"
+        bindtap="onSelectIdentity"
+        data-role="{{item.role}}"
+      >
+        <text class="role-emoji">{{item.role === 'student' ? '👨‍🎓' : '👨‍👩‍👧‍👦'}}</text>
+        <text class="role-name">{{item.role === 'student' ? '学生端' : '家长端'}}</text>
+        <text class="role-desc">{{item.role === 'student' ? '学习、养宠物' : '管理、审核'}}</text>
+      </view>
     </view>
-    
-    <view class="role-card" bindtap="onSelectParent">
-      <text class="role-emoji">👨‍👩‍👧</text>
-      <text class="role-name">我是家长</text>
-      <text class="role-desc">管理任务，查看学习报告</text>
+  </view>
+
+  <view class="register-section" wx:if="{{!fromLogin || canRegister}}">
+    <text wx:if="{{fromLogin}}" class="section-title">注册新身份</text>
+    <view class="role-list">
+      <view 
+        class="role-card {{!fromLogin || !hasStudent ? '' : 'disabled'}}"
+        bindtap="onSelectStudent"
+      >
+        <text class="role-emoji">👨‍🎓</text>
+        <text class="role-name">我是学生</text>
+        <text class="role-desc">学习、养宠物、玩游戏</text>
+        <text wx:if="{{fromLogin && hasStudent}}" class="registered-tag">已注册</text>
+      </view>
+      
+      <view 
+        class="role-card {{!fromLogin || !hasParent ? '' : 'disabled'}}"
+        bindtap="onSelectParent"
+      >
+        <text class="role-emoji">👨‍👩‍👧‍👦</text>
+        <text class="role-name">我是家长</text>
+        <text class="role-desc">管理任务、审核、看报告</text>
+        <text wx:if="{{fromLogin && hasParent}}" class="registered-tag">已注册</text>
+      </view>
     </view>
+  </view>
+
+  <view wx:if="{{fromLogin}}" class="footer">
+    <button class="btn-secondary" bindtap="onBackToLogin">
+      返回登录
+    </button>
   </view>
 </view>

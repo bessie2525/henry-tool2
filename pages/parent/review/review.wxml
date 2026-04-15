@@ -7,7 +7,15 @@
     </radio-group>
   </view>
 
-  <view class="review-list">
+  <view wx:if="{{loading}}" class="loading-container">
+    <text>加载中...</text>
+  </view>
+
+  <view wx:elif="{{reviewList.length === 0}}" class="empty-container">
+    <text>暂无审核任务</text>
+  </view>
+
+  <view wx:else class="review-list">
     <view 
       wx:for="{{reviewList}}" 
       wx:key="id"
@@ -16,9 +24,12 @@
       data-item="{{item}}"
     >
       <view class="card-header">
-        <text class="type-icon">{{item.type === 'chinese' ? '📝' : '✅'}}</text>
+        <text class="type-icon">{{item.type === 'chinese' ? '📝' : item.type === 'english' ? '📚' : '✅'}}</text>
         <text class="card-title">{{item.title}}</text>
         <text class="card-time">{{item.time}}</text>
+      </view>
+      <view class="card-student">
+        <text>提交者：{{item.studentName}}</text>
       </view>
       <text class="card-content">{{item.content}}</text>
       <view class="card-status {{item.status}}">

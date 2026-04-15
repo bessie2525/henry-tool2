@@ -29,14 +29,22 @@ Page({
     auth.registerParent(nickname).then(result => {
       wx.hideLoading()
       
-      auth.setCurrentRole('parent')
-      auth.setParentInfo({
-        _id: result.parentId
+      wx.showToast({
+        title: '注册成功！',
+        icon: 'success',
+        duration: 1000
       })
       
-      wx.redirectTo({
-        url: '/pages/parent-bind/parent-bind'
-      })
+      setTimeout(() => {
+        auth.setCurrentRole('parent')
+        auth.setParentInfo({
+          _id: result.parentId
+        })
+        
+        wx.redirectTo({
+          url: '/pages/parent-bind/parent-bind'
+        })
+      }, 1000)
       
       this.setData({ loading: false })
     }).catch(err => {

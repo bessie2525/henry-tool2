@@ -155,7 +155,7 @@ async function registerStudent(event, wxContext) {
     data: {
       userId: userId,
       inviteCode: inviteCode,
-      coinBalance: 0,
+      coinBalance: 50,
       totalCoinsEarned: 0,
       consecutiveDays: 0,
       totalActiveDays: 0,
@@ -168,7 +168,8 @@ async function registerStudent(event, wxContext) {
     success: true,
     userId: userId,
     studentId: studentRes._id,
-    inviteCode: inviteCode
+    inviteCode: inviteCode,
+    coinBalance: 50
   }
 }
 
@@ -365,6 +366,13 @@ async function selectRole(event, wxContext) {
         parentId: profile._id
       }).get()
       bindings = bindingRes.data
+    }
+  }
+
+  if (!profile) {
+    return {
+      success: false,
+      message: role === 'parent' ? '家长账号不存在' : '学生账号不存在'
     }
   }
   

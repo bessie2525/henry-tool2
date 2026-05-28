@@ -63,9 +63,15 @@ Page({
       case 'chinese':
         return content.content || content.diaryText || ''
       case 'english':
-        return content.words ? `单词：${content.words.join(', ')}` : ''
+        if (Array.isArray(content.words) && content.words.length > 0) {
+          return `单词：${content.words.map(item => item.word || item).join(', ')}`
+        }
+        if (Array.isArray(content.wordList)) {
+          return `单词：${content.wordList.join(', ')}`
+        }
+        return content.wordList ? `单词：${content.wordList}` : ''
       case 'daily':
-        return content.photo ? '图片打卡' : content.description || ''
+        return content.description || content.summary || (content.photo ? '图片打卡' : '已完成打卡')
       default:
         return ''
     }

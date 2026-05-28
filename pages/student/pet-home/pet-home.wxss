@@ -103,6 +103,10 @@
   animation: eating 0.3s ease-in-out 3;
 }
 
+.pet-display.drinking {
+  animation: drinking 0.4s ease-in-out 3;
+}
+
 @keyframes idle {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-10rpx) rotate(2deg); }
@@ -117,6 +121,11 @@
 @keyframes eating {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(10rpx); }
+}
+
+@keyframes drinking {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-8deg); }
 }
 
 .pet-emoji {
@@ -190,6 +199,87 @@
   font-size: 28rpx;
   font-weight: bold;
   color: #333;
+}
+
+.inventory-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.inventory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.inventory-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.inventory-tip {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.inventory-group {
+  margin-bottom: 24rpx;
+}
+
+.inventory-group:last-child {
+  margin-bottom: 0;
+}
+
+.group-title {
+  display: block;
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.inventory-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.inventory-item {
+  display: flex;
+  align-items: center;
+  background: #F5F7FA;
+  border-radius: 18rpx;
+  padding: 14rpx 20rpx;
+}
+
+.inventory-emoji {
+  font-size: 34rpx;
+  margin-right: 8rpx;
+}
+
+.inventory-name {
+  font-size: 24rpx;
+  color: #333;
+  margin-right: 8rpx;
+}
+
+.inventory-count {
+  font-size: 24rpx;
+  font-weight: bold;
+  color: #4A90E2;
+}
+
+.inventory-empty {
+  background: #F5F7FA;
+  border-radius: 18rpx;
+  padding: 24rpx;
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
 }
 
 .action-bar {

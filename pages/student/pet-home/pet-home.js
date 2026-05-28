@@ -7,18 +7,25 @@ Page({
     hasPet: false,
     loading: true,
     petState: 'idle',
-    freeWaterCount: 3,
-    touchCount: 5
+    touchCount: 5,
+    inventory: [],
+    foodItems: [],
+    drinkItems: [],
+    foodCount: 0,
+    drinkCount: 0,
+    hasInventory: false
   },
 
   onLoad() {
     this.loadPetInfo()
+    this.loadInventory()
   },
 
   onShow() {
     if (this.data.hasPet) {
       this.loadPetInfo()
     }
+    this.loadInventory()
   },
 
   async loadPetInfo() {
@@ -32,7 +39,7 @@ Page({
       
       if (res.result.success) {
         this.setData({
-          pet: res.result.pet,
+          pet: this.formatPet(res.result.pet),
           hasPet: res.result.hasPet,
           loading: false
         })
@@ -40,6 +47,69 @@ Page({
     } catch (err) {
       console.error('加载宠物信息失败', err)
       this.setData({ loading: false })
+    }
+  },
+
+  async loadInventory() {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'shop',
+        data: { action: 'inventory' }
+      })
+
+      if (res.result.success) {
+        this.setData(this.formatInventory(res.result.items || []))
+      }
+    } catch (err) {
+      console.error('加载背包失败', err)
+    }
+  },
+
+  formatInventory(items) {
+    const validItems = items.filter(item => item.quantity > 0)
+    const foodItems = validItems.filter(item => item.itemCategory === 'food')
+    const drinkItems = validItems.filter(item => item.itemCategory === 'drink')
+    const foodCount = foodItems.reduce((total, item) => total + item.quantity, 0)
+    const drinkCount = drinkItems.reduce((total, item) => total + item.quantity, 0)
+
+    return {
+      inventory: validItems,
+      foodItems,
+      drinkItems,
+      foodCount,
+      drinkCount,
+      hasInventory: validItems.length > 0
+    }
+  },
+
+  findUsableItem(category) {
+    return this.data.inventory.find(item => item.itemCategory === category && item.quantity > 0)
+  },
+
+  getCareItemFromEvent(e, category) {
+    const item = e && e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.item
+    if (item && item.itemCategory === category && item.quantity > 0) {
+      return item
+    }
+
+    return this.findUsableItem(category)
+  },
+
+  formatPet(pet) {
+    if (!pet) return null
+
+    const currentHunger = typeof pet.currentHunger === 'number' ? pet.currentHunger : (pet.hunger || 0)
+    const currentThirst = typeof pet.currentThirst === 'number' ? pet.currentThirst : (pet.thirst || 0)
+    const currentMood = typeof pet.currentMood === 'number' ? pet.currentMood : (pet.mood || 0)
+    const hunger = Math.round(Math.min(100, currentHunger))
+    const thirst = Math.round(Math.min(100, currentThirst))
+    const mood = Math.round(Math.min(100, currentMood))
+
+    return {
+      ...pet,
+      hungerPercent: hunger,
+      thirstPercent: thirst,
+      moodPercent: mood
     }
   },
 
@@ -55,35 +125,71 @@ Page({
     }, 2000)
   },
 
-  onFeed() {
-    wx.showToast({
-      title: '喂食功能待实现',
-      icon: 'none'
-    })
+  async onFeed(e) {
+    const food = this.getCareItemFromEvent(e, 'food')
+    if (!food) {
+      wx.showToast({
+        title: '没有食物，请先去商店购买',
+        icon: 'none'
+      })
+      return
+    }
+
+    await this.useInventoryItem('feed', food, '喂食中...')
   },
 
-  onWater() {
-    if (this.data.freeWaterCount <= 0) {
+  async onWater(e) {
+    const drink = this.getCareItemFromEvent(e, 'drink')
+    if (!drink) {
       wx.showToast({
-        title: '今日免费次数已用完',
+        title: '没有饮品，请先去商店购买',
         icon: 'none'
       })
       return
     }
     
-    this.setData({
-      freeWaterCount: this.data.freeWaterCount - 1
-    })
-    
-    this.triggerPetAnimation('eating')
-    
-    wx.showToast({
-      title: '喂水成功！',
-      icon: 'success'
-    })
+    await this.useInventoryItem('water', drink, '喂水中...')
   },
 
-  onTouch() {
+  async useInventoryItem(action, item, loadingTitle) {
+    wx.showLoading({ title: loadingTitle })
+    
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'pet',
+        data: { 
+          action,
+          itemId: item.itemId
+        }
+      })
+      
+      wx.hideLoading()
+      
+      if (res.result.success) {
+        this.setData({ pet: this.formatPet(res.result.pet) })
+        await this.loadInventory()
+        this.triggerPetAnimation(action === 'water' ? 'drinking' : 'eating')
+        wx.showToast({
+          title: res.result.message || '互动成功！',
+          icon: 'success'
+        })
+      } else {
+        wx.showToast({
+          title: res.result.message || '互动失败',
+          icon: 'none'
+        })
+      }
+    } catch (err) {
+      wx.hideLoading()
+      console.error('宠物互动失败', err)
+      wx.showToast({
+        title: '互动失败',
+        icon: 'none'
+      })
+    }
+  },
+
+  async onTouch() {
     if (this.data.touchCount <= 0) {
       wx.showToast({
         title: '今日抚摸次数已用完',
@@ -92,16 +198,43 @@ Page({
       return
     }
     
-    this.setData({
-      touchCount: this.data.touchCount - 1
-    })
+    wx.showLoading({ title: '抚摸中...' })
     
-    this.triggerPetAnimation('happy')
-    
-    wx.showToast({
-      title: '心情 +5',
-      icon: 'none'
-    })
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'pet',
+        data: { 
+          action: 'touch',
+          moodValue: 10
+        }
+      })
+      
+      wx.hideLoading()
+      
+      if (res.result.success) {
+        this.setData({ 
+          pet: this.formatPet(res.result.pet),
+          touchCount: this.data.touchCount - 1
+        })
+        this.triggerPetAnimation('happy')
+        wx.showToast({
+          title: '心情 +10',
+          icon: 'success'
+        })
+      } else {
+        wx.showToast({
+          title: res.result.message || '抚摸失败',
+          icon: 'none'
+        })
+      }
+    } catch (err) {
+      wx.hideLoading()
+      console.error('抚摸失败', err)
+      wx.showToast({
+        title: '抚摸失败',
+        icon: 'none'
+      })
+    }
   },
 
   onChat() {

@@ -12,7 +12,7 @@
 
     <view class="content-section">
       <text class="section-label">任务内容：</text>
-      <text class="content-text">{{formatContent(submission.submissionContent, submission.taskType)}}</text>
+      <text class="content-text">{{contentText}}</text>
     </view>
 
     <view class="time-info">

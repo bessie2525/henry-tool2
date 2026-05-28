@@ -1,4 +1,4 @@
-const { callCloudFunction } = require('../../../utils/api')
+const { callFunction: callCloudFunction } = require('../../../utils/api')
 const auth = require('../../../utils/auth')
 
 Page({
@@ -8,6 +8,7 @@ Page({
     children: [],
     todayProgress: 0,
     todayTotal: 4,
+    todayPercent: 0,
     pendingCount: 0,
     weeklyData: {
       chineseDays: 0,
@@ -34,34 +35,31 @@ Page({
     try {
       this.setData({ loading: true })
 
-      const parentInfo = auth.getUserInfo()
-      if (!parentInfo || !parentInfo.parentId) {
-        this.setData({ loading: false })
-        return
-      }
-
-      const res = await callCloudFunction('review', {
-        action: 'pending',
-        status: 'pending'
+      const res = await callCloudFunction('stats', {
+        action: 'dashboard'
       })
 
-      if (res.success && res.reviews) {
-        const pendingCount = res.reviews.length
+      if (res.success) {
+        const todayProgress = res.todayProgress || 0
+        const todayTotal = res.todayTotal || 4
+        const todayPercent = todayTotal > 0 ? Math.round((todayProgress / todayTotal) * 100) : 0
 
         this.setData({
           children: [
             { 
-              id: '1', 
-              name: '我的孩子', 
-              petName: '宠物', 
-              petLevel: 1, 
-              coins: 0, 
+              id: res.studentId || '1', 
+              name: res.studentName || '我的孩子', 
+              petName: res.petName || '宠物', 
+              petLevel: res.petLevel || 1, 
+              coins: res.petCoins || 0, 
               mood: 'happy' 
             }
           ],
-          pendingCount: pendingCount,
-          todayProgress: 0,
-          weeklyData: {
+          pendingCount: res.pendingCount || 0,
+          todayProgress,
+          todayTotal,
+          todayPercent,
+          weeklyData: res.weeklyData || {
             chineseDays: 0,
             englishAccuracy: 0,
             checkinRate: 0

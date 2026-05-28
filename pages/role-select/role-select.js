@@ -30,6 +30,8 @@ Page({
       const hasStudent = identities.some(i => i.role === 'student')
       const hasParent = identities.some(i => i.role === 'parent')
       
+      console.log('从服务器获取到的身份列表:', identities)
+      
       this.setData({
         identities,
         hasStudent,

@@ -21,7 +21,7 @@
       <view wx:for="{{items}}" wx:key="id" class="recommend-item">
         <text class="item-emoji">{{item.emoji}}</text>
         <text class="item-name">{{item.name}}</text>
-        <text class="item-price">🪙 {{Math.floor(item.price * 0.9)}}</text>
+        <text class="item-price">🪙 {{item.discountPrice}}</text>
       </view>
     </view>
   </view>

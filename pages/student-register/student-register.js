@@ -49,7 +49,7 @@ Page({
         auth.setStudentInfo({
           _id: result.studentId,
           inviteCode: result.inviteCode,
-          coinBalance: 0
+          coinBalance: typeof result.coinBalance === 'number' ? result.coinBalance : 50
         })
         
         wx.redirectTo({

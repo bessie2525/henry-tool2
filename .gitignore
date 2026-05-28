@@ -5,3 +5,5 @@ cloudfunctions/*/node_modules/
 *.log
 .vscode/
 .idea/
+.cloudbase-cli-config/
+.cloudbase-cli-home/

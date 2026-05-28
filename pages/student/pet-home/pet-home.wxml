@@ -29,29 +29,76 @@
       <view class="status-item">
         <text class="status-label">🍖 饱食度</text>
         <view class="progress-bar">
-          <view class="progress-fill hunger" style="width: {{pet ? Math.min(100, pet.currentHunger) : 80}}%"></view>
+          <view class="progress-fill hunger" style="width: {{pet ? pet.hungerPercent : 80}}%"></view>
         </view>
-        <text class="status-value">{{pet ? Math.round(pet.currentHunger) : 80}}%</text>
+        <text class="status-value">{{pet ? pet.hungerPercent : 80}}%</text>
       </view>
       <view class="status-item">
         <text class="status-label">💧 口渴度</text>
         <view class="progress-bar">
-          <view class="progress-fill thirst" style="width: {{pet ? Math.min(100, pet.currentThirst) : 80}}%"></view>
+          <view class="progress-fill thirst" style="width: {{pet ? pet.thirstPercent : 80}}%"></view>
         </view>
-        <text class="status-value">{{pet ? Math.round(pet.currentThirst) : 80}}%</text>
+        <text class="status-value">{{pet ? pet.thirstPercent : 80}}%</text>
       </view>
       <view class="status-item">
         <text class="status-label">😊 心情值</text>
         <view class="progress-bar">
-          <view class="progress-fill mood" style="width: {{pet ? Math.min(100, pet.currentMood) : 80}}%"></view>
+          <view class="progress-fill mood" style="width: {{pet ? pet.moodPercent : 80}}%"></view>
         </view>
-        <text class="status-value">{{pet ? Math.round(pet.currentMood) : 80}}%</text>
+        <text class="status-value">{{pet ? pet.moodPercent : 80}}%</text>
+      </view>
+    </view>
+
+    <view class="inventory-card">
+      <view class="inventory-header">
+        <text class="inventory-title">🎒 我的背包</text>
+        <text class="inventory-tip">点击物品可直接使用</text>
+      </view>
+
+      <view wx:if="{{hasInventory}}" class="inventory-section">
+        <view wx:if="{{foodItems.length > 0}}" class="inventory-group">
+          <text class="group-title">食物 x{{foodCount}}</text>
+          <view class="inventory-list">
+            <view 
+              wx:for="{{foodItems}}" 
+              wx:key="_id"
+              class="inventory-item"
+              bindtap="onFeed"
+              data-item="{{item}}"
+            >
+              <text class="inventory-emoji">{{item.itemEmoji}}</text>
+              <text class="inventory-name">{{item.itemName}}</text>
+              <text class="inventory-count">x{{item.quantity}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{drinkItems.length > 0}}" class="inventory-group">
+          <text class="group-title">饮品 x{{drinkCount}}</text>
+          <view class="inventory-list">
+            <view 
+              wx:for="{{drinkItems}}" 
+              wx:key="_id"
+              class="inventory-item"
+              bindtap="onWater"
+              data-item="{{item}}"
+            >
+              <text class="inventory-emoji">{{item.itemEmoji}}</text>
+              <text class="inventory-name">{{item.itemName}}</text>
+              <text class="inventory-count">x{{item.quantity}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:else class="inventory-empty">
+        <text>背包里还没有食物或饮品，先去商店购买吧</text>
       </view>
     </view>
 
     <view class="action-bar">
-      <button class="action-btn" bindtap="onFeed">🍖 喂食</button>
-      <button class="action-btn" bindtap="onWater">💧 喂水 ({{freeWaterCount}})</button>
+      <button class="action-btn" bindtap="onFeed">🍖 喂食 ({{foodCount}})</button>
+      <button class="action-btn" bindtap="onWater">💧 喂水 ({{drinkCount}})</button>
       <button class="action-btn" bindtap="onTouch">✋ 抚摸 ({{touchCount}})</button>
       <button class="action-btn" bindtap="onChat">💬 聊天</button>
       <button class="action-btn" bindtap="onDressUp">👔 换装</button>

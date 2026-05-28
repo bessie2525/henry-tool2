@@ -98,6 +98,13 @@ async function getPendingReviews(event, wxContext) {
   const submissionsRes = await query.orderBy('submitTime', 'desc').get()
   
   const submissions = submissionsRes.data
+
+  if (submissions.length === 0) {
+    return {
+      success: true,
+      reviews: []
+    }
+  }
   
   const studentIdSet = new Set(submissions.map(s => s.studentId))
   const studentsRes = await db.collection('students').where({

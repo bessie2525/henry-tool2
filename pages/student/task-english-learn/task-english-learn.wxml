@@ -1,17 +1,22 @@
-<view class="container">
+<view class="container" wx:if="{{!loading}}">
   <view class="progress-bar">
     <text class="progress-text">{{currentIndex + 1}}/{{words.length}}</text>
     <view class="progress-track">
-      <view class="progress-fill" style="width: {{((currentIndex + 1)/words.length)*100}}%"></view>
+      <view class="progress-fill" style="width: {{progressPercent}}%"></view>
     </view>
   </view>
 
-  <view class="word-card">
-    <text class="word-text">{{words[currentIndex].word}}</text>
-    <text class="word-phonetic">{{words[currentIndex].phonetic}}</text>
+  <view class="word-card" wx:if="{{currentWord}}">
+    <text class="word-text">{{currentWord.word}}</text>
+    <text class="word-phonetic">{{currentWord.phonetic}}</text>
     <button class="audio-btn" bindtap="onPlayAudio">🔊</button>
-    <text class="word-meaning">{{words[currentIndex].meaning}}</text>
-    <text class="word-example">{{words[currentIndex].example}}</text>
+    <text class="word-meaning">{{currentWord.meaning}}</text>
+    <text class="word-example">{{currentWord.example}}</text>
+  </view>
+
+  <view class="word-card" wx:else>
+    <text class="word-text">暂无单词</text>
+    <text class="word-meaning">请家长先添加英语单词</text>
   </view>
 
   <view class="nav-buttons">
@@ -22,4 +27,8 @@
   <button class="start-btn {{unlocked ? 'unlocked' : ''}}" bindtap="onStartGame" disabled="{{!unlocked}}">
     {{unlocked ? '开始冒险！' : '请先浏览完所有单词'}}
   </button>
+</view>
+
+<view class="container" wx:else>
+  <text>加载中...</text>
 </view>

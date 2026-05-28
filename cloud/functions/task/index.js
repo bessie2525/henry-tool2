@@ -5,6 +5,7 @@ cloud.init({
 })
 
 const db = cloud.database()
+const _ = db.command
 
 exports.main = async (event, context) => {
   console.log('task云函数被调用，event:', event)
@@ -20,6 +21,20 @@ exports.main = async (event, context) => {
         return await getTaskHistory(event, wxContext)
       case 'submit':
         return await submitTask(event, wxContext)
+      case 'daily_list':
+        return await listDailyTasks(event, wxContext)
+      case 'daily_add':
+        return await addDailyTask(event, wxContext)
+      case 'daily_update':
+        return await updateDailyTask(event, wxContext)
+      case 'daily_delete':
+        return await deleteDailyTask(event, wxContext)
+      case 'english_words':
+        return await listEnglishWords(event, wxContext)
+      case 'english_add':
+        return await addEnglishWord(event, wxContext)
+      case 'english_delete':
+        return await deleteEnglishWord(event, wxContext)
       default:
         return {
           success: false,
@@ -59,22 +74,182 @@ async function getStudentProfile(wxContext) {
   return { user, student: studentRes.data[0] }
 }
 
+async function getParentProfile(wxContext) {
+  const { OPENID } = wxContext
+  
+  const userRes = await db.collection('users').where({
+    openId: OPENID
+  }).get()
+  
+  if (userRes.data.length === 0) {
+    return null
+  }
+  
+  const user = userRes.data[0]
+  
+  const parentRes = await db.collection('parents').where({
+    userId: user._id
+  }).get()
+  
+  if (parentRes.data.length === 0) {
+    return null
+  }
+  
+  return { user, parent: parentRes.data[0] }
+}
+
+async function getManagedStudentId(wxContext, requestedStudentId) {
+  const parentData = await getParentProfile(wxContext)
+  if (!parentData) {
+    return { success: false, message: '家长账号不存在' }
+  }
+
+  const bindingRes = await db.collection('bindings').where({
+    parentId: parentData.parent._id
+  }).get()
+
+  if (bindingRes.data.length === 0) {
+    return { success: false, message: '请先绑定孩子' }
+  }
+
+  const studentIds = bindingRes.data.map(item => item.studentId)
+  const studentId = requestedStudentId || studentIds[0]
+
+  if (!studentIds.includes(studentId)) {
+    return { success: false, message: '无权管理该孩子的任务' }
+  }
+
+  return {
+    success: true,
+    parent: parentData.parent,
+    studentId
+  }
+}
+
+function getDefaultDailyTasks(studentId) {
+  const now = new Date()
+
+  return [
+    {
+      id: 'daily-default-sport',
+      studentId,
+      title: '运动打卡',
+      description: '运动30分钟',
+      enabled: true,
+      isActive: true,
+      requirePhoto: false,
+      coinReward: 12,
+      expReward: 6,
+      createdAt: now,
+      updatedAt: now
+    },
+    {
+      id: 'daily-default-reading',
+      studentId,
+      title: '阅读打卡',
+      description: '阅读15分钟',
+      enabled: true,
+      isActive: true,
+      requirePhoto: false,
+      coinReward: 10,
+      expReward: 5,
+      createdAt: now,
+      updatedAt: now
+    }
+  ]
+}
+
+function getDefaultEnglishWords(studentId) {
+  const now = new Date()
+
+  return [
+    { id: 'english-default-apple', studentId, word: 'apple', meaning: '苹果', phonetic: '/ˈæpl/', example: 'I like apples.', isActive: true, createdAt: now, updatedAt: now },
+    { id: 'english-default-banana', studentId, word: 'banana', meaning: '香蕉', phonetic: '/bəˈnænə/', example: 'Monkeys like bananas.', isActive: true, createdAt: now, updatedAt: now },
+    { id: 'english-default-cat', studentId, word: 'cat', meaning: '猫', phonetic: '/kæt/', example: 'The cat is cute.', isActive: true, createdAt: now, updatedAt: now }
+  ]
+}
+
+async function getActiveDailyTasks(studentId) {
+  const dailyRes = await db.collection('task_daily_templates')
+    .where({
+      studentId,
+      isActive: true
+    })
+    .get()
+
+  const tasks = dailyRes.data.length > 0 ? dailyRes.data : getDefaultDailyTasks(studentId)
+  return tasks.filter(item => item.enabled !== false)
+}
+
+async function getActiveEnglishWords(studentId) {
+  const wordsRes = await db.collection('task_english_wordlists')
+    .where({
+      studentId,
+      isActive: true
+    })
+    .get()
+
+  return wordsRes.data.length > 0 ? wordsRes.data : getDefaultEnglishWords(studentId)
+}
+
+function normalizeTaskId(task) {
+  return task._id || task.id
+}
+
 async function getTodayTasks(wxContext) {
   const studentData = await getStudentProfile(wxContext)
   if (!studentData) {
     return { success: false, message: '学生账号不存在' }
   }
+
+  const { student } = studentData
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+
+  const [dailyTasks, englishWords, submissionsRes] = await Promise.all([
+    getActiveDailyTasks(student._id),
+    getActiveEnglishWords(student._id),
+    db.collection('task_submissions').where({
+      studentId: student._id,
+      submitTime: _.gte(today).and(_.lt(tomorrow))
+    }).get()
+  ])
+
+  const submissionStatusMap = {}
+  submissionsRes.data.forEach(item => {
+    submissionStatusMap[item.taskId || `${item.taskType}-1`] = item.status
+  })
   
-  const defaultTasks = [
+  const tasks = [
     { id: 'chinese-1', type: 'chinese', title: '语文每日一记', description: '写一篇30字以上的日记', coinReward: 10, expReward: 5 },
-    { id: 'english-1', type: 'english', title: '英语单词学习', description: '学习5个新单词', coinReward: 8, expReward: 4 },
-    { id: 'daily-1', type: 'daily', title: '运动打卡', description: '运动30分钟', coinReward: 12, expReward: 6 },
-    { id: 'daily-2', type: 'daily', title: '阅读打卡', description: '阅读15分钟', coinReward: 10, expReward: 5 }
+    {
+      id: 'english-1',
+      type: 'english',
+      title: '英语单词学习',
+      description: `学习${englishWords.length}个单词`,
+      coinReward: 8,
+      expReward: 4
+    },
+    ...dailyTasks.map(task => ({
+      id: normalizeTaskId(task),
+      type: 'daily',
+      title: task.title,
+      description: task.description,
+      requirePhoto: !!task.requirePhoto,
+      coinReward: task.coinReward || 0,
+      expReward: task.expReward || 0
+    }))
   ]
   
   return {
     success: true,
-    tasks: defaultTasks
+    tasks: tasks.map(task => ({
+      ...task,
+      status: submissionStatusMap[task.id] || 'pending'
+    }))
   }
 }
 
@@ -103,7 +278,7 @@ async function getTaskHistory(event, wxContext) {
 }
 
 async function submitTask(event, wxContext) {
-  const { taskType, taskTitle, submissionContent } = event
+  const { taskId, taskType, taskTitle, submissionContent, coinReward = 0, expReward = 0 } = event
   
   const studentData = await getStudentProfile(wxContext)
   if (!studentData) {
@@ -114,17 +289,17 @@ async function submitTask(event, wxContext) {
   
   const submissionData = {
     studentId: student._id,
-    taskId: null,
+    taskId: taskId || null,
     taskType: taskType,
     taskTitle: taskTitle,
-    submissionContent: submissionContent,
+    submissionContent: normalizeSubmissionContent(taskType, taskTitle, submissionContent),
     submitTime: new Date(),
     status: 'pending',
     reviewTime: null,
     reviewedBy: null,
     reviewComment: '',
-    coinReward: 0,
-    expReward: 0,
+    coinReward: Number(coinReward) || 0,
+    expReward: Number(expReward) || 0,
     createdAt: new Date()
   }
   
@@ -136,5 +311,288 @@ async function submitTask(event, wxContext) {
     success: true,
     message: '提交成功，等待家长审核',
     submissionId: addRes._id
+  }
+}
+
+function normalizeSubmissionContent(taskType, taskTitle, content = {}) {
+  if (taskType === 'daily') {
+    return {
+      type: 'daily_checkin',
+      title: taskTitle,
+      description: content.description || content.summary || '',
+      taskId: content.taskId || null,
+      completedAt: content.completedAt || new Date().toISOString(),
+      proofType: content.photo ? 'photo' : 'self_confirm',
+      photo: content.photo || ''
+    }
+  }
+
+  if (taskType === 'english') {
+    const words = Array.isArray(content.words) ? content.words : []
+    const wordList = Array.isArray(content.wordList)
+      ? content.wordList
+      : (typeof content.wordList === 'string' ? content.wordList.split(',').map(item => item.trim()).filter(Boolean) : [])
+
+    return {
+      type: 'english_learning',
+      title: taskTitle,
+      words,
+      wordList: wordList.length > 0 ? wordList : words.map(item => item.word),
+      wordsLearned: Number(content.wordsLearned) || words.length,
+      completedAt: content.completedAt || new Date().toISOString()
+    }
+  }
+
+  if (taskType === 'chinese') {
+    return {
+      type: 'chinese_diary',
+      title: taskTitle,
+      content: content.content || content.diaryText || '',
+      completedAt: content.completedAt || new Date().toISOString()
+    }
+  }
+
+  return content
+}
+
+async function listDailyTasks(event, wxContext) {
+  const { studentId } = event
+  const manager = await getManagedStudentId(wxContext, studentId)
+  if (!manager.success) return manager
+
+  let dailyRes = await db.collection('task_daily_templates')
+    .where({
+      studentId: manager.studentId,
+      isActive: _.neq(false)
+    })
+    .get()
+
+  if (dailyRes.data.length === 0) {
+    const defaultTasks = getDefaultDailyTasks(manager.studentId)
+    for (const task of defaultTasks) {
+      const { id, ...data } = task
+      await db.collection('task_daily_templates').add({
+        data: {
+          ...data,
+          createdBy: manager.parent._id
+        }
+      })
+    }
+
+    dailyRes = await db.collection('task_daily_templates')
+      .where({
+        studentId: manager.studentId,
+        isActive: _.neq(false)
+      })
+      .get()
+  }
+
+  const tasks = dailyRes.data
+
+  return {
+    success: true,
+    tasks: tasks.map(task => ({
+      id: normalizeTaskId(task),
+      title: task.title,
+      description: task.description,
+      enabled: task.enabled !== false,
+      requirePhoto: !!task.requirePhoto,
+      coinReward: task.coinReward || 0,
+      expReward: task.expReward || 0
+    }))
+  }
+}
+
+async function addDailyTask(event, wxContext) {
+  const { studentId, title, description, coinReward = 0, expReward = 0, requirePhoto = false } = event
+  const manager = await getManagedStudentId(wxContext, studentId)
+  if (!manager.success) return manager
+
+  if (!title || !description) {
+    return { success: false, message: '请输入完整任务信息' }
+  }
+
+  const addRes = await db.collection('task_daily_templates').add({
+    data: {
+      studentId: manager.studentId,
+      title,
+      description,
+      enabled: true,
+      isActive: true,
+      requirePhoto: !!requirePhoto,
+      coinReward: Number(coinReward) || 0,
+      expReward: Number(expReward) || 0,
+      createdBy: manager.parent._id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  })
+
+  return {
+    success: true,
+    id: addRes._id,
+    message: '添加成功'
+  }
+}
+
+async function updateDailyTask(event, wxContext) {
+  const { studentId, taskId, enabled, title, description, coinReward, expReward, requirePhoto } = event
+  const manager = await getManagedStudentId(wxContext, studentId)
+  if (!manager.success) return manager
+
+  const taskRes = await db.collection('task_daily_templates').doc(taskId).get()
+  if (!taskRes.data || taskRes.data.studentId !== manager.studentId) {
+    return { success: false, message: '任务不存在或无权修改' }
+  }
+
+  const data = { updatedAt: new Date() }
+  if (typeof enabled === 'boolean') data.enabled = enabled
+  if (typeof title === 'string') data.title = title
+  if (typeof description === 'string') data.description = description
+  if (coinReward !== undefined) data.coinReward = Number(coinReward) || 0
+  if (expReward !== undefined) data.expReward = Number(expReward) || 0
+  if (requirePhoto !== undefined) data.requirePhoto = !!requirePhoto
+
+  await db.collection('task_daily_templates').doc(taskId).update({ data })
+
+  return {
+    success: true,
+    message: '设置成功'
+  }
+}
+
+async function deleteDailyTask(event, wxContext) {
+  const { studentId, taskId } = event
+  const manager = await getManagedStudentId(wxContext, studentId)
+  if (!manager.success) return manager
+
+  const taskRes = await db.collection('task_daily_templates').doc(taskId).get()
+  if (!taskRes.data || taskRes.data.studentId !== manager.studentId) {
+    return { success: false, message: '任务不存在或无权删除' }
+  }
+
+  await db.collection('task_daily_templates').doc(taskId).update({
+    data: {
+      isActive: false,
+      updatedAt: new Date()
+    }
+  })
+
+  return {
+    success: true,
+    message: '删除成功'
+  }
+}
+
+async function listEnglishWords(event, wxContext) {
+  const { role } = event
+  const studentData = role === 'parent' ? null : await getStudentProfile(wxContext)
+
+  if (studentData) {
+    const words = await getActiveEnglishWords(studentData.student._id)
+    return {
+      success: true,
+      words: words.map(formatWord)
+    }
+  }
+
+  const { studentId } = event
+  const manager = await getManagedStudentId(wxContext, studentId)
+  if (!manager.success) return manager
+
+  let wordsRes = await db.collection('task_english_wordlists')
+    .where({
+      studentId: manager.studentId,
+      isActive: true
+    })
+    .get()
+
+  if (wordsRes.data.length === 0) {
+    const defaultWords = getDefaultEnglishWords(manager.studentId)
+    for (const item of defaultWords) {
+      const { id, ...data } = item
+      await db.collection('task_english_wordlists').add({
+        data: {
+          ...data,
+          createdBy: manager.parent._id
+        }
+      })
+    }
+
+    wordsRes = await db.collection('task_english_wordlists')
+      .where({
+        studentId: manager.studentId,
+        isActive: true
+      })
+      .get()
+  }
+
+  const words = wordsRes.data
+  return {
+    success: true,
+    words: words.map(formatWord)
+  }
+}
+
+function formatWord(item) {
+  return {
+    id: normalizeTaskId(item),
+    word: item.word,
+    meaning: item.meaning,
+    phonetic: item.phonetic || '',
+    example: item.example || ''
+  }
+}
+
+async function addEnglishWord(event, wxContext) {
+  const { studentId, word, meaning, phonetic = '', example = '' } = event
+  const manager = await getManagedStudentId(wxContext, studentId)
+  if (!manager.success) return manager
+
+  if (!word || !meaning) {
+    return { success: false, message: '请输入单词和中文意思' }
+  }
+
+  const addRes = await db.collection('task_english_wordlists').add({
+    data: {
+      studentId: manager.studentId,
+      word,
+      meaning,
+      phonetic,
+      example,
+      isActive: true,
+      createdBy: manager.parent._id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  })
+
+  return {
+    success: true,
+    id: addRes._id,
+    message: '添加成功'
+  }
+}
+
+async function deleteEnglishWord(event, wxContext) {
+  const { studentId, wordId } = event
+  const manager = await getManagedStudentId(wxContext, studentId)
+  if (!manager.success) return manager
+
+  const wordRes = await db.collection('task_english_wordlists').doc(wordId).get()
+  if (!wordRes.data || wordRes.data.studentId !== manager.studentId) {
+    return { success: false, message: '单词不存在或无权删除' }
+  }
+
+  await db.collection('task_english_wordlists').doc(wordId).update({
+    data: {
+      isActive: false,
+      updatedAt: new Date()
+    }
+  })
+
+  return {
+    success: true,
+    message: '删除成功'
   }
 }

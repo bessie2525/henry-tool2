@@ -35,7 +35,7 @@ Page({
       })
       
       setTimeout(() => {
-        wx.switchTab({
+        wx.redirectTo({
           url: '/pages/parent/dashboard/dashboard'
         })
       }, 1500)
@@ -53,7 +53,7 @@ Page({
   },
 
   onSkip() {
-    wx.switchTab({
+    wx.redirectTo({
       url: '/pages/parent/dashboard/dashboard'
     })
   }

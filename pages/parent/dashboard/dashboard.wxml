@@ -41,10 +41,10 @@
       </view>
     </view>
     <view class="progress-bar">
-      <view class="progress-fill" style="width: {{(todayProgress/todayTotal)*100}}%"></view>
+      <view class="progress-fill" style="width: {{todayPercent}}%"></view>
     </view>
     <text class="progress-text">{{todayProgress}}/{{todayTotal}} 已完成</text>
-    <view class="progress-percent">{{Math.round((todayProgress/todayTotal)*100)}}%</view>
+    <view class="progress-percent">{{todayPercent}}%</view>
   </view>
 
   <view class="weekly-summary">

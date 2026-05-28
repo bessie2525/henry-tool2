@@ -1,3 +1,5 @@
+const auth = require('../../../utils/auth.js')
+
 Page({
   data: {
     categories: [
@@ -9,24 +11,78 @@ Page({
       { id: 'prop', name: '道具', emoji: '✨' }
     ],
     selectedCategory: 'food',
-    items: [
-      { id: '1', name: '小鱼干', price: 5, emoji: '🐟', category: 'food' },
-      { id: '2', name: '牛排', price: 20, emoji: '🥩', category: 'food' },
-      { id: '3', name: '蛋糕', price: 30, emoji: '🍰', category: 'food' }
-    ]
+    items: [],
+    loading: true,
+    coins: 0
   },
 
   onLoad() {
     this.loadShopItems()
+    this.loadUserInfo()
   },
 
-  loadShopItems() {
+  onShow() {
+    this.loadUserInfo()
+  },
+
+  async loadUserInfo() {
+    const studentInfo = auth.getStudentInfo()
+    if (studentInfo) {
+      this.setData({ coins: typeof studentInfo.coinBalance === 'number' ? studentInfo.coinBalance : 0 })
+    }
+
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'coin',
+        data: { action: 'balance' }
+      })
+
+      if (res.result.success) {
+        const coinBalance = typeof res.result.coinBalance === 'number' ? res.result.coinBalance : (res.result.balance || 0)
+        this.setData({ coins: coinBalance })
+        auth.setStudentInfo({
+          ...(studentInfo || {}),
+          coinBalance
+        })
+      }
+    } catch (err) {
+      console.error('加载金币余额失败', err)
+    }
+  },
+
+  async loadShopItems() {
+    this.setData({ loading: true })
     
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'shop',
+        data: { 
+          action: 'list',
+          category: this.data.selectedCategory
+        }
+      })
+      
+      if (res.result.success) {
+        const items = (res.result.items || []).map(item => ({
+          ...item,
+          discountPrice: Math.floor((item.price || 0) * 0.9)
+        }))
+
+        this.setData({ 
+          items,
+          loading: false
+        })
+      }
+    } catch (err) {
+      console.error('加载商店失败', err)
+      this.setData({ loading: false })
+    }
   },
 
   onCategoryTap(e) {
     const category = e.currentTarget.dataset.category
     this.setData({ selectedCategory: category.id })
+    this.loadShopItems()
   },
 
   onItemTap(e) {
@@ -42,10 +98,45 @@ Page({
     })
   },
 
-  buyItem(item) {
-    wx.showToast({
-      title: '购买功能待实现',
-      icon: 'none'
-    })
+  async buyItem(item) {
+    wx.showLoading({ title: '购买中...' })
+    
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'shop',
+        data: { 
+          action: 'buy',
+          itemId: item._id
+        }
+      })
+      
+      wx.hideLoading()
+      
+      if (res.result.success) {
+        const coinBalance = typeof res.result.coinBalance === 'number' ? res.result.coinBalance : (res.result.coins || 0)
+        const studentInfo = auth.getStudentInfo() || {}
+        auth.setStudentInfo({
+          ...studentInfo,
+          coinBalance
+        })
+        this.setData({ coins: coinBalance })
+        wx.showToast({
+          title: '购买成功！',
+          icon: 'success'
+        })
+      } else {
+        wx.showToast({
+          title: res.result.message || '购买失败',
+          icon: 'none'
+        })
+      }
+    } catch (err) {
+      wx.hideLoading()
+      console.error('购买失败', err)
+      wx.showToast({
+        title: '购买失败',
+        icon: 'none'
+      })
+    }
   }
 })

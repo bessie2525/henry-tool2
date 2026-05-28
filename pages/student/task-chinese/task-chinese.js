@@ -62,11 +62,15 @@ Page({
       
       const res = await callCloudFunction('task', {
         action: 'submit',
+        taskId: this.data.taskId || 'chinese-1',
         taskType: 'chinese',
         taskTitle: this.data.taskTitle,
+        coinReward: 10,
+        expReward: 5,
         submissionContent: {
           content: content,
-          theme: this.data.todayTheme
+          theme: this.data.todayTheme,
+          completedAt: new Date().toISOString()
         }
       })
       

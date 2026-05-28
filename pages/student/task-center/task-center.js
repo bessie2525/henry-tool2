@@ -35,7 +35,7 @@ Page({
           name: task.title,
           description: task.description,
           icon: task.type === 'chinese' ? '📝' : task.type === 'english' ? '🔤' : '✅',
-          status: 'pending',
+          status: task.status || 'pending',
           reward: task.coinReward,
           expReward: task.expReward
         }))

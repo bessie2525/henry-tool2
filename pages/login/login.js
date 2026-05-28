@@ -11,17 +11,9 @@ Page({
   },
 
   checkLoginStatus() {
-    if (auth.isLoggedIn() && auth.getCurrentRole()) {
-      if (auth.isStudent()) {
-        wx.switchTab({
-          url: '/pages/student/pet-home/pet-home'
-        })
-      } else if (auth.isParent()) {
-        wx.redirectTo({
-          url: '/pages/parent/dashboard/dashboard'
-        })
-      }
-    }
+    // 自动清除之前的登录状态，强制重新登录
+    auth.clearCurrentRole()
+    // 不自动跳转，让用户重新点击登录按钮
   },
 
   onLogin() {

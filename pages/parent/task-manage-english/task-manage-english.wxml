@@ -17,14 +17,7 @@
         bindinput="onMeaningInput"
       />
     </view>
-    <view class="form-group">
-      <picker mode="selector" range="{{['水果', '动物', '颜色', '数字', '身体']}}" bindchange="onCategoryChange">
-        <view class="picker">
-          <text>{{newCategory}}</text>
-          <text class="picker-arrow">›</text>
-        </view>
-      </picker>
-    </view>
+
     <button class="add-btn" bindtap="onAddWord">添加单词</button>
   </view>
 
@@ -39,7 +32,6 @@
         <view class="word-info">
           <text class="word-english">{{item.word}}</text>
           <text class="word-chinese">{{item.meaning}}</text>
-          <text class="word-category">{{item.category}}</text>
         </view>
         <view class="word-actions">
           <text class="delete-btn" bindtap="onDeleteWord" data-id="{{item.id}}">删除</text>

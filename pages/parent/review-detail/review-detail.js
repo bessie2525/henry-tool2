@@ -5,6 +5,7 @@ Page({
     reviewId: null,
     submission: null,
     student: null,
+    contentText: '',
     coinReward: 10,
     expReward: 5,
     loading: true,
@@ -30,7 +31,10 @@ Page({
       if (res.success) {
         this.setData({
           submission: res.submission,
-          student: res.student
+          student: res.student,
+          contentText: this.formatContent(res.submission.submissionContent, res.submission.taskType),
+          coinReward: res.submission.coinReward || this.data.coinReward,
+          expReward: res.submission.expReward || this.data.expReward
         })
       }
     } catch (error) {
@@ -153,9 +157,21 @@ Page({
       case 'chinese':
         return content.content || content.diaryText || ''
       case 'english':
-        return content.words ? `学习单词：${content.words.join(', ')}` : ''
+        if (Array.isArray(content.words) && content.words.length > 0) {
+          return content.words.map(item => {
+            if (typeof item === 'string') return item
+            return item.meaning ? `${item.word}：${item.meaning}` : item.word
+          }).join('\n')
+        }
+        if (Array.isArray(content.wordList)) {
+          return `学习单词：${content.wordList.join(', ')}`
+        }
+        return content.wordList ? `学习单词：${content.wordList}` : ''
       case 'daily':
-        return content.description || ''
+        return [
+          content.description || content.summary || '已完成打卡',
+          content.completedAt ? `完成时间：${content.completedAt}` : ''
+        ].filter(Boolean).join('\n')
       default:
         return ''
     }

@@ -70,9 +70,7 @@ Page({
 
             const approveRes = await callCloudFunction('review', {
               action: 'approve',
-              submissionId: that.data.reviewId,
-              coinReward: that.data.coinReward,
-              expReward: that.data.expReward
+              submissionId: that.data.reviewId
             })
 
             if (approveRes.success) {

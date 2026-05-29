@@ -20,7 +20,18 @@ Page({
     this.loadData()
   },
 
-  loadData() {
+  async loadData() {
+    try {
+      const res = await callCloudFunction('task', {
+        action: 'chinese_theme_get'
+      })
+
+      if (res.theme) {
+        this.setData({ todayTheme: res.theme })
+      }
+    } catch (error) {
+      console.error('加载语文主题失败:', error)
+    }
   },
 
   onContentInput(e) {
@@ -65,8 +76,6 @@ Page({
         taskId: this.data.taskId || 'chinese-1',
         taskType: 'chinese',
         taskTitle: this.data.taskTitle,
-        coinReward: 10,
-        expReward: 5,
         submissionContent: {
           content: content,
           theme: this.data.todayTheme,

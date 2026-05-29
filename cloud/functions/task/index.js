@@ -35,6 +35,10 @@ exports.main = async (event, context) => {
         return await addEnglishWord(event, wxContext)
       case 'english_delete':
         return await deleteEnglishWord(event, wxContext)
+      case 'chinese_theme_get':
+        return await getChineseTheme(event, wxContext)
+      case 'chinese_theme_set':
+        return await setChineseTheme(event, wxContext)
       default:
         return {
           success: false,
@@ -196,6 +200,56 @@ function normalizeTaskId(task) {
   return task._id || task.id
 }
 
+function getDateKey(date = new Date()) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+async function getChineseThemeByStudent(studentId) {
+  const themeRes = await db.collection('task_chinese_topics')
+    .where({
+      studentId,
+      isActive: true
+    })
+    .orderBy('updatedAt', 'desc')
+    .limit(1)
+    .get()
+
+  return themeRes.data[0] || null
+}
+
+async function getTrustedSubmissionReward(studentId, taskType, taskId) {
+  if (taskType === 'chinese') {
+    return { coinReward: 10, expReward: 30 }
+  }
+
+  if (taskType === 'english') {
+    return { coinReward: 10, expReward: 30 }
+  }
+
+  if (taskType === 'daily') {
+    if (taskId) {
+      try {
+        const taskRes = await db.collection('task_daily_templates').doc(taskId).get()
+        if (taskRes.data && taskRes.data.studentId === studentId && taskRes.data.isActive !== false) {
+          return {
+            coinReward: Number(taskRes.data.coinReward) || 5,
+            expReward: Number(taskRes.data.expReward) || 15
+          }
+        }
+      } catch (error) {
+        console.warn('读取日常任务奖励失败，使用默认奖励:', taskId, error.message)
+      }
+    }
+
+    return { coinReward: 5, expReward: 15 }
+  }
+
+  return { coinReward: 0, expReward: 0 }
+}
+
 async function getTodayTasks(wxContext) {
   const studentData = await getStudentProfile(wxContext)
   if (!studentData) {
@@ -209,9 +263,10 @@ async function getTodayTasks(wxContext) {
   const tomorrow = new Date(today)
   tomorrow.setDate(tomorrow.getDate() + 1)
 
-  const [dailyTasks, englishWords, submissionsRes] = await Promise.all([
+  const [dailyTasks, englishWords, chineseTheme, submissionsRes] = await Promise.all([
     getActiveDailyTasks(student._id),
     getActiveEnglishWords(student._id),
+    getChineseThemeByStudent(student._id),
     db.collection('task_submissions').where({
       studentId: student._id,
       submitTime: _.gte(today).and(_.lt(tomorrow))
@@ -224,14 +279,22 @@ async function getTodayTasks(wxContext) {
   })
   
   const tasks = [
-    { id: 'chinese-1', type: 'chinese', title: '语文每日一记', description: '写一篇30字以上的日记', coinReward: 10, expReward: 5 },
+    {
+      id: 'chinese-1',
+      type: 'chinese',
+      title: '语文每日一记',
+      description: chineseTheme ? `今日主题：${chineseTheme.theme}` : '写一篇30字以上的日记',
+      theme: chineseTheme ? chineseTheme.theme : '',
+      coinReward: 10,
+      expReward: 30
+    },
     {
       id: 'english-1',
       type: 'english',
       title: '英语单词学习',
       description: `学习${englishWords.length}个单词`,
-      coinReward: 8,
-      expReward: 4
+      coinReward: 10,
+      expReward: 30
     },
     ...dailyTasks.map(task => ({
       id: normalizeTaskId(task),
@@ -278,7 +341,7 @@ async function getTaskHistory(event, wxContext) {
 }
 
 async function submitTask(event, wxContext) {
-  const { taskId, taskType, taskTitle, submissionContent, coinReward = 0, expReward = 0 } = event
+  const { taskId, taskType, taskTitle, submissionContent } = event
   
   const studentData = await getStudentProfile(wxContext)
   if (!studentData) {
@@ -286,6 +349,7 @@ async function submitTask(event, wxContext) {
   }
   
   const { student } = studentData
+  const reward = await getTrustedSubmissionReward(student._id, taskType, taskId)
   
   const submissionData = {
     studentId: student._id,
@@ -298,8 +362,8 @@ async function submitTask(event, wxContext) {
     reviewTime: null,
     reviewedBy: null,
     reviewComment: '',
-    coinReward: Number(coinReward) || 0,
-    expReward: Number(expReward) || 0,
+    coinReward: reward.coinReward,
+    expReward: reward.expReward,
     createdAt: new Date()
   }
   
@@ -347,6 +411,7 @@ function normalizeSubmissionContent(taskType, taskTitle, content = {}) {
     return {
       type: 'chinese_diary',
       title: taskTitle,
+      theme: content.theme || '',
       content: content.content || content.diaryText || '',
       completedAt: content.completedAt || new Date().toISOString()
     }
@@ -594,5 +659,77 @@ async function deleteEnglishWord(event, wxContext) {
   return {
     success: true,
     message: '删除成功'
+  }
+}
+
+async function getChineseTheme(event, wxContext) {
+  const { role } = event
+  const studentData = role === 'parent' ? null : await getStudentProfile(wxContext)
+  if (studentData) {
+    const theme = await getChineseThemeByStudent(studentData.student._id)
+    return {
+      success: true,
+      theme: theme ? theme.theme : '',
+      dateKey: theme ? theme.dateKey : getDateKey()
+    }
+  }
+
+  const { studentId } = event
+  const manager = await getManagedStudentId(wxContext, studentId)
+  if (!manager.success) return manager
+
+  const theme = await getChineseThemeByStudent(manager.studentId)
+  return {
+    success: true,
+    theme: theme ? theme.theme : '',
+    dateKey: theme ? theme.dateKey : getDateKey()
+  }
+}
+
+async function setChineseTheme(event, wxContext) {
+  const { studentId, theme } = event
+  const manager = await getManagedStudentId(wxContext, studentId)
+  if (!manager.success) return manager
+
+  const normalizedTheme = (theme || '').trim()
+  if (!normalizedTheme) {
+    return { success: false, message: '请输入主题' }
+  }
+
+  const existingRes = await db.collection('task_chinese_topics')
+    .where({
+      studentId: manager.studentId,
+      isActive: true
+    })
+    .limit(1)
+    .get()
+
+  if (existingRes.data.length > 0) {
+    await db.collection('task_chinese_topics').doc(existingRes.data[0]._id).update({
+      data: {
+        theme: normalizedTheme,
+        dateKey: getDateKey(),
+        updatedBy: manager.parent._id,
+        updatedAt: new Date()
+      }
+    })
+  } else {
+    await db.collection('task_chinese_topics').add({
+      data: {
+        studentId: manager.studentId,
+        theme: normalizedTheme,
+        dateKey: getDateKey(),
+        isActive: true,
+        createdBy: manager.parent._id,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    })
+  }
+
+  return {
+    success: true,
+    theme: normalizedTheme,
+    message: '设置成功'
   }
 }

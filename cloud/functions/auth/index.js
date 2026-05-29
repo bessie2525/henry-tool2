@@ -7,6 +7,13 @@ cloud.init({
 const db = cloud.database()
 const _ = db.command
 
+const LOGIN_REWARD = 2
+const CONSECUTIVE_BONUS = {
+  7: 50,
+  30: 200,
+  100: 500
+}
+
 exports.main = async (event, context) => {
   console.log('auth云函数被调用，event:', event)
   
@@ -72,9 +79,12 @@ async function login(wxContext) {
     }).get()
     
     if (studentRes.data.length > 0) {
+      const loginReward = await awardDailyLoginReward(studentRes.data[0])
+      const studentProfile = loginReward.student || studentRes.data[0]
       identities.push({
         role: 'student',
-        profile: studentRes.data[0]
+        profile: studentProfile,
+        loginReward: loginReward.reward
       })
     }
     
@@ -101,6 +111,68 @@ async function login(wxContext) {
       success: true,
       registered: false
     }
+  }
+}
+
+function getDateKey(date = new Date()) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function getYesterdayKey() {
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  return getDateKey(yesterday)
+}
+
+async function awardDailyLoginReward(student) {
+  const todayKey = getDateKey()
+  const lastLoginDate = student.lastLoginDate || null
+
+  if (lastLoginDate === todayKey) {
+    return { reward: null, student }
+  }
+
+  const yesterdayKey = getYesterdayKey()
+  const nextConsecutiveDays = lastLoginDate === yesterdayKey ? (student.consecutiveDays || 0) + 1 : 1
+  const nextTotalActiveDays = (student.totalActiveDays || 0) + 1
+  const bonus = CONSECUTIVE_BONUS[nextConsecutiveDays] || 0
+  const totalReward = LOGIN_REWARD + bonus
+
+  await db.collection('students').doc(student._id).update({
+    data: {
+      coinBalance: _.inc(totalReward),
+      totalCoinsEarned: _.inc(totalReward),
+      consecutiveDays: nextConsecutiveDays,
+      totalActiveDays: nextTotalActiveDays,
+      lastLoginDate: todayKey,
+      lastLoginAt: new Date()
+    }
+  })
+
+  await db.collection('coin_transactions').add({
+    data: {
+      studentId: student._id,
+      type: 'login_reward',
+      amount: totalReward,
+      description: bonus > 0 ? `每日登录奖励 + 连续${nextConsecutiveDays}天奖励` : '每日登录奖励',
+      dateKey: todayKey,
+      createdAt: new Date()
+    }
+  })
+
+  const updatedStudentRes = await db.collection('students').doc(student._id).get()
+
+  return {
+    reward: {
+      amount: totalReward,
+      loginReward: LOGIN_REWARD,
+      consecutiveBonus: bonus,
+      consecutiveDays: nextConsecutiveDays
+    },
+    student: updatedStudentRes.data
   }
 }
 
@@ -155,11 +227,22 @@ async function registerStudent(event, wxContext) {
     data: {
       userId: userId,
       inviteCode: inviteCode,
-      coinBalance: 50,
-      totalCoinsEarned: 0,
-      consecutiveDays: 0,
-      totalActiveDays: 0,
-      lastLoginDate: null,
+      coinBalance: 50 + LOGIN_REWARD,
+      totalCoinsEarned: LOGIN_REWARD,
+      consecutiveDays: 1,
+      totalActiveDays: 1,
+      lastLoginDate: getDateKey(),
+      createdAt: new Date()
+    }
+  })
+
+  await db.collection('coin_transactions').add({
+    data: {
+      studentId: studentRes._id,
+      type: 'login_reward',
+      amount: LOGIN_REWARD,
+      description: '每日登录奖励',
+      dateKey: getDateKey(),
       createdAt: new Date()
     }
   })
@@ -169,7 +252,7 @@ async function registerStudent(event, wxContext) {
     userId: userId,
     studentId: studentRes._id,
     inviteCode: inviteCode,
-    coinBalance: 50
+    coinBalance: 50 + LOGIN_REWARD
   }
 }
 
@@ -355,6 +438,10 @@ async function selectRole(event, wxContext) {
       userId: user._id
     }).get()
     profile = studentRes.data[0] || null
+    if (profile) {
+      const loginReward = await awardDailyLoginReward(profile)
+      profile = loginReward.student || profile
+    }
   } else if (role === 'parent') {
     const parentRes = await db.collection('parents').where({
       userId: user._id

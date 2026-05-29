@@ -30,27 +30,15 @@
   </view>
 
   <view class="reward-section" wx:if="{{submission && submission.status === 'pending'}}">
-    <text class="section-title">奖励设置</text>
+    <text class="section-title">系统奖励</text>
     <view class="reward-item">
       <text class="reward-label">金币奖励：</text>
-      <input 
-        class="reward-input" 
-        type="number" 
-        value="{{coinReward}}" 
-        bindinput="onCoinRewardChange"
-        placeholder="输入金币数"
-      />
+      <text class="reward-input">{{coinReward}}</text>
       <text class="reward-unit">个</text>
     </view>
     <view class="reward-item">
       <text class="reward-label">经验奖励：</text>
-      <input 
-        class="reward-input" 
-        type="number" 
-        value="{{expReward}}" 
-        bindinput="onExpRewardChange"
-        placeholder="输入经验值"
-      />
+      <text class="reward-input">{{expReward}}</text>
       <text class="reward-unit">点</text>
     </view>
   </view>
